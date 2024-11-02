@@ -35,4 +35,6 @@ PieceRule *get_piece_rule(PieceType piece_type);
 
 std::string piece_color_to_string(PieceColor piece_color);
 
+void print_piece(const Piece& piece);
+
 #endif //PIECE_H

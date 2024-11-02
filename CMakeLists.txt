@@ -5,8 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(SFML 2.5 COMPONENTS system window graphics network audio REQUIRED)
 
-add_executable(chess main.cpp
-        piece.cpp
-        piece.h)
+add_executable(chess src/main.cpp
+        src/Piece.cpp
+        src/Piece.h
+        src/themes/Themes.h
+        src/themes/ClassicThemeManager.cpp)
+
+target_include_directories(chess PRIVATE src/themes src)
 
 target_link_libraries(chess sfml-system sfml-window sfml-graphics sfml-network sfml-audio)

@@ -2,7 +2,10 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include <utility>
-#include "piece.h"
+#include <thread>
+#include <chrono>
+#include "Piece.h"
+#include "Themes.h"
 
 constexpr size_t BOARD_SIZE = 8;
 
@@ -44,72 +47,6 @@ void print_board(Piece (&board)[BOARD_SIZE][BOARD_SIZE]) {
     std::cout << std::endl;
 }
 
-class SpriteManager {
-public:
-    virtual ~SpriteManager() = default;
-
-    virtual sf::Sprite get_piece_sprite(const Piece &piece) = 0;
-
-    virtual sf::Color get_dark_square_color() = 0;
-
-    virtual sf::Color get_light_square_color() = 0;
-};
-
-class ClassicThemeManager final : public SpriteManager {
-public:
-    ClassicThemeManager() {
-        m_empty_texture.create(1, 1);
-        m_empty_sprite.setTexture(m_empty_texture);
-    }
-
-    sf::Sprite get_piece_sprite(const Piece &piece) override {
-        if (piece.type == PieceType::NONE) {
-            return m_empty_sprite;
-        }
-
-        sf::Sprite sprite;
-        sf::Texture texture;
-        std::string key = get_key(piece);
-
-        if (m_texture_cache.find(key) != m_texture_cache.end()) {
-            sprite.setTexture(m_texture_cache[key]);
-            return sprite;
-        }
-
-        if (!texture.loadFromFile(get_piece_image_path(piece))) {
-            std::cerr << "Failed to load piece image" << std::endl;
-            return m_empty_sprite;
-        }
-
-        m_texture_cache[key] = texture;
-        sprite.setTexture(texture);
-        return sprite;
-    }
-
-    sf::Color get_dark_square_color() override {
-        return {118, 150, 86};
-    }
-
-    sf::Color get_light_square_color() override {
-        return {238, 238, 210};
-    }
-
-private:
-    static std::string get_piece_image_path(const Piece &piece) {
-        const std::string color_name = piece.color == PieceColor::WHITE ? "white" : "black";
-        return "../assets/" + get_piece_rule(piece.type)->piece_name + "/" + color_name + ".png";
-    }
-
-    static std::string get_key(const Piece &piece) {
-        return get_piece_rule(piece.type)->piece_name + "_" + piece_color_to_string(piece.color);
-    }
-
-private:
-    std::unordered_map<std::string, sf::Texture> m_texture_cache;
-    sf::Sprite m_empty_sprite;
-    sf::Texture m_empty_texture;
-};
-
 class Renderer {
 public:
     Renderer(std::unique_ptr<SpriteManager> sprite_manager, unsigned int square_size) : m_square_size(
@@ -124,7 +61,31 @@ public:
         draw_pieces(window, board);
     }
 
+    [[nodiscard]] sf::Vector2i get_square_location(const sf::Vector2i &position) const {
+        const sf::Vector2i INVALID_SQUARE{-1, -1};
+
+        if (!is_in_chess_board(position)) {
+            return INVALID_SQUARE;
+        }
+
+        int row = static_cast<int>((position.y - m_y_offset) / m_square_size);
+        int col = static_cast<int>((position.x - m_x_offset) / m_square_size);
+        return {row, col};
+    }
+
 private:
+    [[nodiscard]] bool is_x_in_board(const float x) const {
+        return (x <= ((1 + BOARD_SIZE) * m_square_size + m_x_offset) && x >= m_x_offset);
+    }
+
+    [[nodiscard]] bool is_y_in_board(const float y) const {
+        return (y <= ((1 + BOARD_SIZE) * m_square_size + m_y_offset) && y >= m_y_offset);
+    }
+
+    [[nodiscard]] bool is_in_chess_board(sf::Vector2i position) const {
+        return is_x_in_board(static_cast<float>(position.x)) && is_y_in_board(static_cast<float>(position.y));
+    }
+
     void initialize(const sf::RenderWindow &window) {
         m_size = sf::Vector2f(window.getSize());
 
@@ -180,6 +141,11 @@ private:
     sf::Vector2f m_size = {0, 0};
 };
 
+enum class press_state {
+    INITIAL,
+    DRAG,
+};
+
 void display_board(Piece (&board)[BOARD_SIZE][BOARD_SIZE]) {
     constexpr int height = 500;
     constexpr int width = static_cast<int>((9.0 / 9.0) * height);
@@ -187,6 +153,10 @@ void display_board(Piece (&board)[BOARD_SIZE][BOARD_SIZE]) {
     sf::RenderWindow window(sf::VideoMode(width, height), "SFML works!");
     auto theme = std::make_unique<ClassicThemeManager>();
     Renderer renderer(std::move(theme), 60);
+    press_state current_state = press_state::INITIAL;
+
+    Piece clicked_piece;
+    sf::Vector2i original_location;
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -195,9 +165,52 @@ void display_board(Piece (&board)[BOARD_SIZE][BOARD_SIZE]) {
                 window.close();
         }
 
+
         window.clear();
         renderer.draw_board_to_window(board, window);
+
+        bool is_button_pressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+        std::clog << static_cast<int>(current_state) << '\n';
+        switch (current_state) {
+            case press_state::INITIAL: {
+                if (is_button_pressed) {
+                    auto position_of_click = sf::Mouse::getPosition(window);
+                    auto square_location = renderer.get_square_location(position_of_click);
+                    if (square_location.x < BOARD_SIZE && square_location.y < BOARD_SIZE && square_location.x >= 0 &&
+                        square_location.y >= 0) {
+                        std::clog << get_piece_rule(board[square_location.x][square_location.y].type)->piece_name <<
+                                '\n';
+                        clicked_piece = board[square_location.x][square_location.y];
+                        print_piece(clicked_piece);
+                        original_location = square_location;
+                        current_state = press_state::DRAG;
+                    }
+                }
+                break;
+            }
+            case press_state::DRAG: {
+                print_piece(clicked_piece);
+                if (!is_button_pressed) {
+                    // clicked_piece = {PieceType::NONE, PieceColor::NONE};
+                    auto position_of_click = sf::Mouse::getPosition(window);
+                    auto square_location = renderer.get_square_location(position_of_click);
+                    std::clog << square_location.x << " " << square_location.y << '\n';
+                    if (square_location.x < BOARD_SIZE && square_location.y < BOARD_SIZE && square_location.x >= 0 &&
+                        square_location.y >= 0) {
+                        board[square_location.x][square_location.y] = clicked_piece;
+                        board[original_location.x][original_location.y] = Piece{PieceType::NONE, PieceColor::NONE};
+                    }
+                    current_state = press_state::INITIAL;
+                }
+
+                break;
+            }
+            // set clicked piece position to the position of the mouse
+        }
+
+
         window.display();
+        std::this_thread::sleep_for(std::chrono::milliseconds(32));
     }
 }
 

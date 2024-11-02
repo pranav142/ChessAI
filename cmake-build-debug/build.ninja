@@ -49,17 +49,26 @@ cmake_ninja_workdir = /home/pknadimp/chess/cmake-build-debug/
 
 build cmake_object_order_depends_target_chess: phony || .
 
-build CMakeFiles/chess.dir/main.cpp.o: CXX_COMPILER__chess_unscanned_Debug /home/pknadimp/chess/main.cpp || cmake_object_order_depends_target_chess
-  DEP_FILE = CMakeFiles/chess.dir/main.cpp.o.d
+build CMakeFiles/chess.dir/src/main.cpp.o: CXX_COMPILER__chess_unscanned_Debug /home/pknadimp/chess/src/main.cpp || cmake_object_order_depends_target_chess
+  DEP_FILE = CMakeFiles/chess.dir/src/main.cpp.o.d
   FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/pknadimp/chess/src/themes -I/home/pknadimp/chess/src
   OBJECT_DIR = CMakeFiles/chess.dir
-  OBJECT_FILE_DIR = CMakeFiles/chess.dir
+  OBJECT_FILE_DIR = CMakeFiles/chess.dir/src
 
-build CMakeFiles/chess.dir/piece.cpp.o: CXX_COMPILER__chess_unscanned_Debug /home/pknadimp/chess/piece.cpp || cmake_object_order_depends_target_chess
-  DEP_FILE = CMakeFiles/chess.dir/piece.cpp.o.d
+build CMakeFiles/chess.dir/src/Piece.cpp.o: CXX_COMPILER__chess_unscanned_Debug /home/pknadimp/chess/src/Piece.cpp || cmake_object_order_depends_target_chess
+  DEP_FILE = CMakeFiles/chess.dir/src/Piece.cpp.o.d
   FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/pknadimp/chess/src/themes -I/home/pknadimp/chess/src
   OBJECT_DIR = CMakeFiles/chess.dir
-  OBJECT_FILE_DIR = CMakeFiles/chess.dir
+  OBJECT_FILE_DIR = CMakeFiles/chess.dir/src
+
+build CMakeFiles/chess.dir/src/themes/ClassicThemeManager.cpp.o: CXX_COMPILER__chess_unscanned_Debug /home/pknadimp/chess/src/themes/ClassicThemeManager.cpp || cmake_object_order_depends_target_chess
+  DEP_FILE = CMakeFiles/chess.dir/src/themes/ClassicThemeManager.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/pknadimp/chess/src/themes -I/home/pknadimp/chess/src
+  OBJECT_DIR = CMakeFiles/chess.dir
+  OBJECT_FILE_DIR = CMakeFiles/chess.dir/src/themes
 
 
 # =============================================================================
@@ -69,7 +78,7 @@ build CMakeFiles/chess.dir/piece.cpp.o: CXX_COMPILER__chess_unscanned_Debug /hom
 #############################################
 # Link the executable chess
 
-build chess: CXX_EXECUTABLE_LINKER__chess_Debug CMakeFiles/chess.dir/main.cpp.o CMakeFiles/chess.dir/piece.cpp.o | /usr/lib/x86_64-linux-gnu/libsfml-graphics.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-network.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-audio.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-window.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-system.so.2.5.1
+build chess: CXX_EXECUTABLE_LINKER__chess_Debug CMakeFiles/chess.dir/src/main.cpp.o CMakeFiles/chess.dir/src/Piece.cpp.o CMakeFiles/chess.dir/src/themes/ClassicThemeManager.cpp.o | /usr/lib/x86_64-linux-gnu/libsfml-graphics.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-network.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-audio.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-window.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-system.so.2.5.1
   FLAGS = -g
   LINK_LIBRARIES = /usr/lib/x86_64-linux-gnu/libsfml-graphics.so.2.5.1  /usr/lib/x86_64-linux-gnu/libsfml-network.so.2.5.1  /usr/lib/x86_64-linux-gnu/libsfml-audio.so.2.5.1  /usr/lib/x86_64-linux-gnu/libsfml-window.so.2.5.1  /usr/lib/x86_64-linux-gnu/libsfml-system.so.2.5.1
   OBJECT_DIR = CMakeFiles/chess.dir
