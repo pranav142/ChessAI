@@ -32,30 +32,29 @@ std::string piece_color_to_string(const PieceColor piece_color) {
     }
 }
 
-std::string pieceTypeToString(PieceType type) {
+std::string piece_type_to_char(const PieceType type) {
     switch (type) {
-        case PieceType::NONE:   return "None";
-        case PieceType::PAWN:   return "Pawn";
-        case PieceType::ROOK:   return "Rook";
-        case PieceType::KNIGHT: return "Knight";
-        case PieceType::BISHOP: return "Bishop";
-        case PieceType::QUEEN:  return "Queen";
-        case PieceType::KING:   return "King";
-        default:                return "Unknown";
+        case PieceType::NONE:   return "U";
+        case PieceType::PAWN:   return "P";
+        case PieceType::ROOK:   return "R";
+        case PieceType::KNIGHT: return "N";
+        case PieceType::BISHOP: return "B";
+        case PieceType::QUEEN:  return "Q";
+        case PieceType::KING:   return "K";
+        default:                return "U";
     }
 }
 
-std::string pieceColorToString(PieceColor color) {
+std::string piece_color_to_char(const PieceColor color) {
     switch (color) {
-        case PieceColor::NONE:  return "None";
-        case PieceColor::WHITE: return "White";
-        case PieceColor::BLACK: return "Black";
-        default:                return "Unknown";
+        case PieceColor::NONE:  return "U";
+        case PieceColor::WHITE: return "W";
+        case PieceColor::BLACK: return "B";
+        default:                return "U";
     }
 }
 
 // Helper function to print a Piece
 void print_piece(const Piece& piece) {
-    std::cout << "Piece Type: " << pieceTypeToString(piece.type)
-              << ", Piece Color: " << pieceColorToString(piece.color) << std::endl;
+    std::cout << piece_color_to_char(piece.color) << piece_type_to_char(piece.type);
 }

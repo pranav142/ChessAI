@@ -15,7 +15,6 @@ public:
     virtual sf::Color get_light_square_color() = 0;
 };
 
-// This shit is highly coupled to how we are rendering our thing we need to decouple this
 class ClassicThemeManager final : public SpriteManager {
 public:
     ClassicThemeManager();

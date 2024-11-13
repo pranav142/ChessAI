@@ -9,7 +9,13 @@ add_executable(chess src/main.cpp
         src/Piece.cpp
         src/Piece.h
         src/themes/Themes.h
-        src/themes/ClassicThemeManager.cpp)
+        src/themes/ClassicThemeManager.cpp
+        src/Game.cpp
+        src/Game.h
+        src/Renderer.cpp
+        src/Renderer.h
+        src/Board.cpp
+        src/Board.h)
 
 target_include_directories(chess PRIVATE src/themes src)
 
