@@ -3,11 +3,19 @@
 
 #include "Board.h"
 #include "Renderer.h"
+#include "AI.h"
+#include "moves.h"
 
-enum class GameState {
-    IDLE,
-    CLICKED,
-    DROPPED,
+// Decouple Game from AI?
+
+enum class PlayerType {
+    HUMAN,
+    AI,
+};
+
+struct Player {
+    PieceColor color;
+    PlayerType type;
 };
 
 class Game {
@@ -15,41 +23,33 @@ public:
     Game();
 
     ~Game() = default;
-
-    void run();
-
     void initialize();
 
+    [[nodiscard]] const Board &get_board() const;
+
+    [[nodiscard]] const Player &get_current_player() const;
+
+    [[nodiscard]] bool is_empty_square(int row, int col) const;
+
+    [[nodiscard]] const Piece &get_piece(int row, int col) const;
+
+    std::vector<Move> get_moves(const Piece& piece, int row, int col);
+
+    [[nodiscard]] bool is_move_valid(const Piece &piece, int from_row, int from_col, int to_row, int to_col) const;
+
+    void make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col);
+
+    void make_computer_move(const PieceColor &color);
+
 private:
-    void update_state();
-
-    void update_board();
-
-    void render();
-
-    void process_event(const sf::Event &event);
-
-    void handle_window_close();
-
-    void handle_mouse_button_press();
-
-    void handle_mouse_button_release();
-
-    void handle_mouse_move();
+    void switch_turns();
 
 private:
     Board m_board;
-    Renderer m_renderer;
-    sf::RenderWindow m_window;
 
-    bool m_running = false;
-
-    // TODO: Evaluate how to clean up game state management
-    GameState m_state = GameState::IDLE;
-    sf::Vector2i m_original_square_position;
-    sf::Vector2i m_current_position;
-    sf::Vector2i m_current_square_position;
-    Piece m_selected_piece;
+    Player *m_current_player;
+    Player m_black_player = Player{PieceColor::BLACK, PlayerType::HUMAN};
+    Player m_white_player = Player{PieceColor::WHITE, PlayerType::HUMAN};
 };
 
 #endif //GAME_H

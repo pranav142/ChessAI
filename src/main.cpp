@@ -1,7 +1,6 @@
-#include "Game.h"
+#include "UI.h"
 
 int main() {
-    Game game;
-    game.initialize();
-    game.run();
+   UI ui;
+   ui.run();
 }

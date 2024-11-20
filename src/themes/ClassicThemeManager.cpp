@@ -39,11 +39,15 @@ sf::Color ClassicThemeManager::get_light_square_color() {
     return {238, 238, 210};
 }
 
+sf::Color ClassicThemeManager::get_valid_color() {
+    return {0, 255, 0};
+}
+
 std::string ClassicThemeManager::get_piece_image_path(const Piece &piece) {
     const std::string color_name = piece.color == PieceColor::WHITE ? "white" : "black";
-    return "../assets/" + get_piece_rule(piece.type)->piece_name + "/" + color_name + ".png";
+    return "../assets/" + piece_type_to_string(piece.type) + "/" + color_name + ".png";
 }
 
 std::string ClassicThemeManager::get_key(const Piece &piece) {
-    return get_piece_rule(piece.type)->piece_name + "_" + piece_color_to_string(piece.color);
+    return piece_type_to_string(piece.type) + "_" + piece_color_to_string(piece.color);
 }

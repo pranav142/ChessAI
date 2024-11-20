@@ -10,11 +10,28 @@ void Renderer::draw_board(const Board &board, sf::RenderWindow &window) {
     draw_pieces(board, window);
 }
 
+void Renderer::draw_empty_square(int row, int col, sf::RenderWindow &window) {
+    auto color = get_square_color(row, col);
+    draw_square(get_square_position(row, col), window, color);
+}
+
 
 void Renderer::draw_dragged_piece(const Piece &piece, float x, float y, sf::RenderWindow &window) const {
     sf::Sprite sprite = m_sprite_manager->get_piece_sprite(piece);
     sprite.setPosition(x - m_square_size / 2, y - m_square_size / 2);
     window.draw(sprite);
+}
+
+void Renderer::draw_valid_square(const Position &position, sf::RenderWindow &window) const {
+    auto pixel_location = get_square_position(position.row, position.col);
+    sf::Color color = m_sprite_manager->get_valid_color();
+    draw_square(pixel_location, window, color);
+}
+
+void Renderer::draw_available_moves(const std::vector<Move> &moves, sf::RenderWindow &window) const {
+    for (auto move: moves) {
+        draw_valid_square(move.to, window);
+    }
 }
 
 // Returns the chess square row and column from a pixel position on the window
@@ -55,20 +72,24 @@ sf::Vector2f Renderer::get_square_position(const size_t row, const size_t col) c
     };
 }
 
-void Renderer::draw_square(int row, int col, sf::RenderWindow &window) const {
+void Renderer::draw_square(sf::Vector2f position, sf::RenderWindow &window, const sf::Color &color) const {
     sf::RectangleShape rectangle;
-    auto color = get_square_color(row, col);
     rectangle.setSize(sf::Vector2f(m_square_size, m_square_size));
     rectangle.setFillColor(color);
     rectangle.setOutlineThickness(0);
-    rectangle.setPosition(get_square_position(row, col));
+    rectangle.setPosition(position);
     window.draw(rectangle);
+}
+
+void Renderer::draw_chess_square(int row, int col, sf::RenderWindow &window) const {
+    auto color = get_square_color(row, col);
+    draw_square(get_square_position(row, col), window, color);
 }
 
 void Renderer::draw_empty_board(sf::RenderWindow &window) const {
     for (int row = 0; row < BOARD_SIZE; row++) {
         for (int col = 0; col < BOARD_SIZE; col++) {
-            draw_square(row, col, window);
+            draw_chess_square(row, col, window);
         }
     }
 }

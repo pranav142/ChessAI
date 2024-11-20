@@ -5,9 +5,11 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "memory"
+#include <memory>
 #include "Themes.h"
 #include "Board.h"
+#include "moves.h"
+#include <vector>
 
 class Renderer {
 public:
@@ -21,9 +23,13 @@ public:
 
     void draw_board(const Board &board, sf::RenderWindow &window);
 
+    void draw_empty_square(int row, int col, sf::RenderWindow &window);
+
     [[nodiscard]] sf::Vector2i get_square_location(const sf::Vector2i &position) const;
 
     void draw_dragged_piece(const Piece &piece, float x, float y, sf::RenderWindow &window) const;
+
+    void draw_available_moves(const std::vector<Move> &moves, sf::RenderWindow &window) const;
 
 private:
     [[nodiscard]] bool is_x_in_board(float x) const;
@@ -36,13 +42,17 @@ private:
 
     [[nodiscard]] sf::Vector2f get_square_position(size_t row, size_t col) const;
 
-    void draw_square(int row, int col, sf::RenderWindow &window) const;
+    void draw_square(sf::Vector2f position, sf::RenderWindow &window, const sf::Color &color) const;
+
+    void draw_chess_square(int row, int col, sf::RenderWindow &window) const;
 
     void draw_empty_board(sf::RenderWindow &window) const;
 
     void draw_piece(const Piece &piece, int row, int col, sf::RenderWindow &window) const;
 
     void draw_pieces(const Board &board, sf::RenderWindow &window);
+
+    void draw_valid_square(const Position &position, sf::RenderWindow &window) const;
 
 private:
     std::unique_ptr<SpriteManager> m_sprite_manager;

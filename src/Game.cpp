@@ -3,115 +3,79 @@
 //
 
 #include "Game.h"
-#include <iostream>
+#include "move_generation.h"
+#include "AI.h"
+#include "Board.h"
+#include <thread>
 
-Game::Game()
-    : m_renderer(std::make_unique<ClassicThemeManager>(), 60),
-      m_window(sf::VideoMode(600, 600), "Chess Engine") {
-}
+Game::Game() {}
 
 void Game::initialize() {
     m_board.initialize();
-    m_renderer.initialize(m_window.getSize().x, m_window.getSize().y);
+    m_current_player = &m_white_player;
 }
 
-void Game::handle_window_close() {
-    m_running = false;
+void Game::switch_turns() {
+    m_current_player = m_current_player == &m_white_player ? &m_black_player : &m_white_player;
 }
 
-void Game::handle_mouse_button_press() {
-    auto position_of_click = sf::Mouse::getPosition(m_window);
-    auto square_index = m_renderer.get_square_location(position_of_click);
-    if (!is_valid_square_index(square_index) || is_empty_square(square_index, m_board)) {
-        return;
-    }
-
-    m_state = GameState::CLICKED;
-    m_selected_piece = m_board.get_piece(square_index);
-    m_current_position = position_of_click;
-    m_original_square_position = square_index;
+const Board &Game::get_board() const {
+    return m_board;
 }
 
-void Game::handle_mouse_button_release() {
-    if (m_state != GameState::CLICKED) {
-        return;
-    }
-    m_state = GameState::DROPPED;
-    m_current_position = sf::Mouse::getPosition(m_window);
-    m_current_square_position = m_renderer.get_square_location(m_current_position);
+const Player &Game::get_current_player() const {
+    return *m_current_player;
 }
 
-void Game::handle_mouse_move() {
-    if (m_state != GameState::CLICKED) {
-        return;
-    }
-    m_current_position = sf::Mouse::getPosition(m_window);
+bool Game::is_empty_square(int row, int col) const {
+    return m_board.is_empty(row, col);
 }
 
-void Game::process_event(const sf::Event &event) {
-    switch (event.type) {
-        case sf::Event::Closed: {
-            handle_window_close();
-            break;
-        }
-        case sf::Event::MouseButtonPressed: {
-            handle_mouse_button_press();
-            break;
-        }
-        case sf::Event::MouseMoved: {
-            handle_mouse_move();
-            break;
-        }
-        case sf::Event::MouseButtonReleased: {
-            handle_mouse_button_release();
-            break;
-        }
-        default: ;
-    }
+
+const Piece &Game::get_piece(int row, int col) const {
+    return m_board.get_piece(row, col);
 }
 
-void Game::update_state() {
-    // Once we drop a piece we can reset the state machine
-    if (m_state == GameState::DROPPED) {
-        m_state = GameState::IDLE;
-    }
-
-    sf::Event event{};
-    while (m_window.pollEvent(event)) {
-        process_event(event);
-    }
+std::vector<Move> Game::get_moves(const Piece &piece, int row, int col) {
+    return generate_moves(piece, m_board, Position{row, col});
 }
 
-// TODO: Make Cleaner
-void Game::update_board() {
-    // If a piece is clicked we temporarily remove it from the board until it gets dropped
-    if (m_state == GameState::CLICKED) {
-        m_board.set_piece(m_original_square_position.x, m_original_square_position.y, create_piece(PieceType::NONE, PieceColor::NONE));
+bool Game::is_move_valid(const Piece &piece, int from_row, int from_col, int to_row, int to_col) const {
+    if (piece.color != m_current_player->color) {
+        return false;
     }
-    else if (m_state == GameState::DROPPED) {
-        if (!is_valid_square_index(m_current_square_position)) {
-            m_board.set_piece(m_original_square_position.x , m_original_square_position.y, m_selected_piece);
-        } else {
-            m_board.set_piece(m_current_square_position.x, m_current_square_position.y, m_selected_piece);
+
+    auto moves = generate_moves(piece, m_board, Position{from_row, from_col});
+    for (auto move: moves) {
+        if (move.to.row == to_row && move.to.col == to_col) {
+            return true;
         }
     }
+
+    return false;
 }
 
-void Game::render() {
-    m_window.clear();
-    m_renderer.draw_board(m_board, m_window);
-    if (m_state == GameState::CLICKED) {
-        m_renderer.draw_dragged_piece(m_selected_piece, m_current_position.x, m_current_position.y, m_window);
+void Game::make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col) {
+    auto moves = generate_moves(piece, m_board, Position{from_row, from_col});
+
+    Move selected_move;
+    for (auto move: moves) {
+        print_move(move);
+        if (move.to.row == to_row && move.to.col == to_col) {
+            selected_move = move;
+        }
     }
-    m_window.display();
+    m_board.make_move(selected_move);
+    // m_board.set_piece(from_row, from_col, Piece{PieceType::NONE, PieceColor::NONE});
+    // m_board.set_piece(to_row, to_col, piece);
+    switch_turns();
 }
 
-void Game::run() {
-    m_running = true;
-
-    while (m_running) {
-        update_state();
-        update_board();
-        render();
-    }
+void Game::make_computer_move(const PieceColor &color) {
+    // std::this_thread::sleep_for(std::chrono::seconds(2));
+    auto move = generate_AI_move(m_board, color);
+    m_board.make_move(move);
+    switch_turns();
+    //make_move(move.moved_piece, move.from.row, move.from.col, move.to.row, move.to.col);
 }
+

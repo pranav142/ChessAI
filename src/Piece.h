@@ -22,23 +22,21 @@ enum class PieceColor {
 struct Piece {
     PieceType type = PieceType::NONE;
     PieceColor color = PieceColor::NONE;
+    bool has_moved = false;
 };
-
-typedef struct {
-    char letter;
-    std::string piece_name;
-} PieceRule;
 
 Piece create_piece(PieceType type, PieceColor color);
 
-PieceRule *get_piece_rule(PieceType piece_type);
-
-std::string piece_color_to_string(const PieceColor piece_color);
+std::string piece_color_to_string(PieceColor piece_color);
 
 std::string piece_type_to_char(PieceType type);
 
 std::string piece_color_to_char(PieceColor color);
 
-void print_piece(const Piece& piece);
+std::string piece_type_to_string(PieceType type);
+
+void print_piece(const Piece &piece);
+
+PieceColor get_enemy_color(const PieceColor &color);
 
 #endif //PIECE_H

@@ -13,6 +13,8 @@ public:
     virtual sf::Color get_dark_square_color() = 0;
 
     virtual sf::Color get_light_square_color() = 0;
+
+    virtual sf::Color get_valid_color() = 0;
 };
 
 class ClassicThemeManager final : public SpriteManager {
@@ -24,6 +26,8 @@ public:
     sf::Color get_dark_square_color() override;
 
     sf::Color get_light_square_color() override;
+
+    sf::Color get_valid_color() override;
 
 private:
     static std::string get_piece_image_path(const Piece &piece);

@@ -15,7 +15,16 @@ add_executable(chess src/main.cpp
         src/Renderer.cpp
         src/Renderer.h
         src/Board.cpp
-        src/Board.h)
+        src/Board.h
+        src/AI.cpp
+        src/AI.h
+        src/UI.cpp
+        src/UI.h
+        src/moves.cpp
+        src/moves.h
+        src/move_generation.cpp
+        src/move_generation.h
+)
 
 target_include_directories(chess PRIVATE src/themes src)
 
