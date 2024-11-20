@@ -337,7 +337,7 @@ bool is_square_attacked_by_color(int row, int col, const PieceColor &color, cons
 }
 
 bool is_piece_attacking_square(const Piece &piece, Position piece_position, Position target, const Board &board) {
-    auto moves = generate_moves(piece, board, piece_position);
+    const auto moves = generate_moves(piece, board, piece_position);
     for (auto move: moves) {
         if (move.to.row == target.row && move.to.col == target.col) {
             return true;

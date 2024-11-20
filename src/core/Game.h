@@ -2,7 +2,6 @@
 #define GAME_H
 
 #include "Board.h"
-#include "Renderer.h"
 #include "AI.h"
 #include "moves.h"
 

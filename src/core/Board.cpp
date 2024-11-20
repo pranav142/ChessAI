@@ -106,8 +106,6 @@ void Board::make_move(const Move &move) {
     }
 }
 
-
-
 bool Board::is_in_bounds(int row, int col) {
     return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
 }
