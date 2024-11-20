@@ -2,12 +2,13 @@
 #define BOARD_H
 
 #include "Piece.h"
+#include <string>
 #include "moves.h"
 #include <SFML/Graphics.hpp>
 
 #define BOARD_SIZE 8
 
-
+// Should store castling rights and en passant targets
 class Board {
 public:
     Board();
@@ -25,6 +26,8 @@ public:
     [[nodiscard]] bool is_empty(int row, int col) const;
 
     void make_move(const Move &move);
+
+    void load_from_FEN(const std::string &FEN);
 
 private:
     static bool is_in_bounds(int row, int col);

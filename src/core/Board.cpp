@@ -7,24 +7,7 @@ Board::Board() {
 }
 
 void Board::initialize() {
-    constexpr PieceType back_row[BOARD_SIZE] = {
-        PieceType::ROOK, PieceType::KNIGHT, PieceType::BISHOP, PieceType::QUEEN,
-        PieceType::KING, PieceType::BISHOP, PieceType::KNIGHT, PieceType::ROOK
-    };
-
-    for (auto &row: m_board) {
-        for (auto &square: row) {
-            square = create_piece(PieceType::NONE, PieceColor::NONE);
-        }
-    }
-
-    for (int col = 0; col < BOARD_SIZE; col++) {
-        m_board[6][col] = create_piece(PieceType::PAWN, PieceColor::WHITE);
-        m_board[1][col] = create_piece(PieceType::PAWN, PieceColor::BLACK);
-
-        m_board[7][col] = create_piece(back_row[col], PieceColor::WHITE);
-        m_board[0][col] = create_piece(back_row[col], PieceColor::BLACK);
-    }
+    load_from_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }
 
 const Piece &Board::get_piece(int row, int col) const {
@@ -106,6 +89,65 @@ void Board::make_move(const Move &move) {
     }
 }
 
+Piece piece_from_FEN_char(char c) {
+    PieceColor color = isupper(c) ? PieceColor::WHITE : PieceColor::BLACK;
+    PieceType type = PieceType::NONE;
+    switch (toupper(c)) {
+        case 'P': {
+            type = PieceType::PAWN;
+            break;
+        }
+        case 'N': {
+            type = PieceType::KNIGHT;
+            break;
+        }
+        case 'K': {
+            type = PieceType::KING;
+            break;
+        }
+        case 'Q': {
+            type = PieceType::QUEEN;
+            break;
+        }
+        case 'B': {
+            type = PieceType::BISHOP;
+            break;
+        }
+        case 'R': {
+            type = PieceType::ROOK;
+            break;
+        }
+        default: ;
+    }
+
+    return Piece{type, color};
+}
+
+void Board::load_from_FEN(const std::string &FEN) {
+    // Split the string by /
+    int current_row = 0;
+    int current_col = 0;
+    for (auto it: FEN) {
+        if (it == '/') {
+            current_row++;
+            current_col = 0;
+            continue;
+        }
+        if (it == ' ') {
+            break;
+        }
+        if (isdigit(it)) {
+            for (int col = 0; col < static_cast<int>(it); col++) {
+                set_piece(current_row, current_col + col, Piece{PieceType::NONE, PieceColor::NONE});
+            }
+            current_col += static_cast<int>(it);
+        } else {
+            set_piece(current_row, current_col, piece_from_FEN_char(it));
+            current_col += 1;
+        }
+    }
+}
+
 bool Board::is_in_bounds(int row, int col) {
     return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
 }
@@ -122,7 +164,8 @@ void Board::print_to_console() const {
 }
 
 bool is_valid_square_index(sf::Vector2i &square_index) {
-    return square_index.x >= 0 && square_index.x < BOARD_SIZE && square_index.y >= 0 && square_index.y < BOARD_SIZE;
+    return square_index.x >= 0 && square_index.x < BOARD_SIZE && square_index.y >= 0 && square_index.y <
+           BOARD_SIZE;
 }
 
 bool is_empty_square(sf::Vector2i &square_index, const Board &board) {

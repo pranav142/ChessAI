@@ -24,7 +24,6 @@ void UI::handle_mouse_button_press() {
         return;
     }
 
-    std::clog << "Clicked square " << square_index.x << " " << square_index.y << std::endl;
     m_state.type = UIStateType::CLICKED;
     m_state.selected_piece = m_game.get_piece(square_index.x, square_index.y);
     m_state.m_current_mouse_position = position_of_click;

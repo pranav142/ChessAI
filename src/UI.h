@@ -5,7 +5,6 @@
 #ifndef UI_H
 #define UI_H
 
-#include "Board.h"
 #include "Game.h"
 #include "Renderer.h"
 
