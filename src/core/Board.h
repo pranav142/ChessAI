@@ -8,7 +8,16 @@
 
 #define BOARD_SIZE 8
 
-// Should store castling rights and en passant targets
+// Simply stores right to castle not the ability to castle
+struct CastlingRights {
+    bool white_king_side;
+    bool white_queen_side;
+    bool black_king_side;
+    bool black_queen_side;
+};
+
+void reset_castling_rights(CastlingRights &rights);
+
 class Board {
 public:
     Board();
@@ -29,13 +38,20 @@ public:
 
     void load_from_FEN(const std::string &FEN);
 
+    [[nodiscard]] bool has_castling_rights_queen_side(const PieceColor& color) const;
+
+    [[nodiscard]] bool has_castling_rights_king_side(const PieceColor& color) const;
+
 private:
     static bool is_in_bounds(int row, int col);
+
+    void update_castling_rights(const Move &move);
 
 private:
     Piece m_board[BOARD_SIZE][BOARD_SIZE];
 
     Piece m_empty_piece = Piece{PieceType::NONE, PieceColor::NONE};
+    CastlingRights m_castling_rights;
 };
 
 

@@ -22,9 +22,17 @@ void Renderer::draw_dragged_piece(const Piece &piece, float x, float y, sf::Rend
     window.draw(sprite);
 }
 
+bool Renderer::is_light_square(int row, int col) const {
+    return ((row + col) % 2);
+}
+
+sf::Color Renderer::get_valid_square_color(const Position &position) const {
+    return is_light_square(position.row, position.col) ? m_sprite_manager->get_light_square_valid_color() : m_sprite_manager->get_dark_square_valid_color();
+}
+
 void Renderer::draw_valid_square(const Position &position, sf::RenderWindow &window) const {
     auto pixel_location = get_square_position(position.row, position.col);
-    sf::Color color = m_sprite_manager->get_valid_color();
+    sf::Color color = get_valid_square_color(position);
     draw_square(pixel_location, window, color);
 }
 
@@ -60,7 +68,7 @@ bool Renderer::is_in_chess_board(sf::Vector2i position) const {
 }
 
 sf::Color Renderer::get_square_color(const size_t row, const size_t col) const {
-    return ((row + col) % 2)
+    return (is_light_square(row, col))
                ? m_sprite_manager->get_light_square_color()
                : m_sprite_manager->get_dark_square_color();
 }

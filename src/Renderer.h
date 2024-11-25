@@ -29,6 +29,8 @@ public:
 
     void draw_dragged_piece(const Piece &piece, float x, float y, sf::RenderWindow &window) const;
 
+    sf::Color get_valid_square_color(const Position &position);
+
     void draw_available_moves(const std::vector<Move> &moves, sf::RenderWindow &window) const;
 
 private:
@@ -42,6 +44,8 @@ private:
 
     [[nodiscard]] sf::Vector2f get_square_position(size_t row, size_t col) const;
 
+    [[nodiscard]] bool is_light_square(int row, int col) const;
+
     void draw_square(sf::Vector2f position, sf::RenderWindow &window, const sf::Color &color) const;
 
     void draw_chess_square(int row, int col, sf::RenderWindow &window) const;
@@ -51,6 +55,8 @@ private:
     void draw_piece(const Piece &piece, int row, int col, sf::RenderWindow &window) const;
 
     void draw_pieces(const Board &board, sf::RenderWindow &window);
+
+    [[nodiscard]] sf::Color get_valid_square_color(const Position &position) const;
 
     void draw_valid_square(const Position &position, sf::RenderWindow &window) const;
 

@@ -60,22 +60,19 @@ void Game::make_move(const Piece &piece, int from_row, int from_col, int to_row,
 
     Move selected_move;
     for (auto move: moves) {
-        print_move(move);
         if (move.to.row == to_row && move.to.col == to_col) {
             selected_move = move;
         }
     }
+    print_move(selected_move);
+
     m_board.make_move(selected_move);
-    // m_board.set_piece(from_row, from_col, Piece{PieceType::NONE, PieceColor::NONE});
-    // m_board.set_piece(to_row, to_col, piece);
     switch_turns();
 }
 
 void Game::make_computer_move(const PieceColor &color) {
-    // std::this_thread::sleep_for(std::chrono::seconds(2));
     auto move = generate_AI_move(m_board, color);
     m_board.make_move(move);
     switch_turns();
-    //make_move(move.moved_piece, move.from.row, move.from.col, move.to.row, move.to.col);
 }
 

@@ -70,34 +70,36 @@ void UI::process_event(const sf::Event &event) {
     }
 }
 
+void UI::handle_piece_clicked(const Player &player) {
+    if (player.color != m_state.selected_piece.color) {
+        m_state.type = UIStateType::IDLE;
+        return;
+    }
+    auto moves = m_game.get_moves(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y);
+    m_renderer.draw_empty_square(m_state.from_square.x, m_state.from_square.y, m_window);
+    m_renderer.draw_available_moves(moves, m_window);
+    m_renderer.draw_dragged_piece(m_state.selected_piece, m_state.m_current_mouse_position.x,
+                                  m_state.m_current_mouse_position.y, m_window);
+}
+
+void UI::handle_piece_dropped() {
+    if (m_game.is_move_valid(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y,
+                             m_state.to_square.x, m_state.to_square.y)) {
+        m_game.make_move(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y,
+                         m_state.to_square.x, m_state.to_square.y);
+        m_renderer.draw_board(m_game.get_board(), m_window);
+    }
+    m_state.type = UIStateType::IDLE;
+}
+
 void UI::handle_human_turn(const Player &player) {
-    // if (m_state.type == UIStateType::DROPPED) {
-    //     // to be implemented
-    //     reset_state();
-    // }
-    // Process human interactions
-    // if a piece gets dropped
     switch (m_state.type) {
         case UIStateType::CLICKED: {
-            if (player.color != m_state.selected_piece.color) {
-                m_state.type = UIStateType::IDLE;
-                break;
-            }
-            auto moves = m_game.get_moves(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y);
-            m_renderer.draw_empty_square(m_state.from_square.x, m_state.from_square.y, m_window);
-            m_renderer.draw_available_moves(moves, m_window);
-            m_renderer.draw_dragged_piece(m_state.selected_piece, m_state.m_current_mouse_position.x,
-                                          m_state.m_current_mouse_position.y, m_window);
+            handle_piece_clicked(player);
             break;
         }
         case UIStateType::DROPPED: {
-            if (m_game.is_move_valid(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y,
-                                     m_state.to_square.x, m_state.to_square.y)) {
-                m_game.make_move(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y,
-                                 m_state.to_square.x, m_state.to_square.y);
-                m_renderer.draw_board(m_game.get_board(), m_window);
-            }
-            m_state.type = UIStateType::IDLE;
+            handle_piece_dropped();
             break;
         }
         default: {

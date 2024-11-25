@@ -48,6 +48,10 @@ private:
 
     void handle_mouse_move();
 
+    void handle_piece_clicked(const Player &player);
+
+    void handle_piece_dropped();
+
 private:
     Renderer m_renderer;
     UIState m_state;

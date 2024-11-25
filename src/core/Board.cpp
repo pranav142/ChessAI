@@ -2,12 +2,21 @@
 #include "Piece.h"
 #include "Board.h"
 
+void reset_castling_rights(CastlingRights &rights) {
+    rights.black_king_side = true;
+    rights.white_king_side = true;
+    rights.white_queen_side = true;
+    rights.black_queen_side = true;
+}
+
 Board::Board() {
     initialize();
 }
 
 void Board::initialize() {
-    load_from_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    //load_from_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    load_from_FEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+    reset_castling_rights(m_castling_rights);
 }
 
 const Piece &Board::get_piece(int row, int col) const {
@@ -32,24 +41,66 @@ bool Board::is_empty(int row, int col) const {
     return get_piece(row, col).type == PieceType::NONE;
 }
 
+void Board::update_castling_rights(const Move &move) {
+    Piece piece = get_piece(move.from.row, move.from.col);
+
+    if (piece.type == PieceType::KING) {
+        if (piece.color == PieceColor::WHITE) {
+            m_castling_rights.white_king_side = false;
+            m_castling_rights.white_queen_side = false;
+        } else {
+            m_castling_rights.black_king_side = false;
+            m_castling_rights.black_queen_side = false;
+        }
+    }
+
+    if (piece.type == PieceType::ROOK) {
+        if (piece.color == PieceColor::WHITE) {
+            if (move.from.row == 7 && move.from.col == 0) {
+                m_castling_rights.white_queen_side = false;
+            } else if (move.from.row == 7 && move.from.col == 7) {
+                m_castling_rights.white_king_side = false;
+            }
+        } else if (piece.color == PieceColor::BLACK) {
+            if (move.from.row == 0 && move.from.col == 0) {
+                m_castling_rights.black_queen_side = false;
+            } else if (move.from.row == 0 && move.from.col == 7) {
+                m_castling_rights.black_king_side = false;
+            }
+        }
+    }
+
+    if (move.captured_piece.type == PieceType::ROOK) {
+        if (piece.color == PieceColor::BLACK) {
+            if (move.capture_at.row == 7 && move.capture_at.col == 0) {
+                m_castling_rights.white_queen_side = false;
+            } else if (move.to.row == 7 && move.to.col == 7) {
+                m_castling_rights.white_king_side = false;
+            }
+        } else if (piece.color == PieceColor::WHITE) {
+            if (move.capture_at.row == 0 && move.capture_at.col == 0) {
+                m_castling_rights.black_queen_side = false;
+            } else if (move.capture_at.row == 0 && move.capture_at.col == 7) {
+                m_castling_rights.black_king_side = false;
+            }
+        }
+    }
+}
+
 void Board::make_move(const Move &move) {
+    update_castling_rights(move);
+
     switch (move.type) {
         case MoveType::NORMAL: {
             set_piece(move.from.row, move.from.col, Piece{PieceType::NONE, PieceColor::NONE});
-            auto piece = move.moved_piece;
-            piece.has_moved = true;
             set_piece(move.to.row, move.to.col, move.moved_piece);
             break;
         }
         case MoveType::CASTLE: {
             set_piece(move.from.row, move.from.col, Piece{PieceType::NONE, PieceColor::NONE});
-
             auto king = move.moved_piece;
-            king.has_moved = true;
             set_piece(move.to.row, move.to.col, king);
-
             bool is_kingside = (move.to.col > move.from.col);
-
             Position rook_from = is_kingside
                                      ? Position{move.from.row, 7}
                                      : Position{move.from.row, 0};
@@ -58,17 +109,12 @@ void Board::make_move(const Move &move) {
                                    : Position{move.from.row, move.to.col + 1};
 
             auto rook = get_piece(rook_from.row, rook_from.col);
-            rook.has_moved = true;
             set_piece(rook_to.row, rook_to.col, rook);
-
             set_piece(rook_from.row, rook_from.col, Piece{PieceType::NONE, PieceColor::NONE});
-
             break;
         }
         case MoveType::EN_PASSANT: {
             set_piece(move.from.row, move.from.col, Piece{PieceType::NONE, PieceColor::NONE});
-            auto piece = move.moved_piece;
-            piece.has_moved = true;
             set_piece(move.to.row, move.to.col, move.moved_piece);
             set_piece(move.capture_at.row, move.capture_at.col, Piece{PieceType::NONE, PieceColor::NONE});
             break;
@@ -80,8 +126,6 @@ void Board::make_move(const Move &move) {
         }
         case MoveType::CAPTURE: {
             set_piece(move.from.row, move.from.col, Piece{PieceType::NONE, PieceColor::NONE});
-            auto piece = move.moved_piece;
-            piece.has_moved = true;
             set_piece(move.to.row, move.to.col, move.moved_piece);
             break;
         }
@@ -123,6 +167,7 @@ Piece piece_from_FEN_char(char c) {
     return Piece{type, color};
 }
 
+// TODO: Improve FEN handling
 void Board::load_from_FEN(const std::string &FEN) {
     // Split the string by /
     int current_row = 0;
@@ -137,15 +182,24 @@ void Board::load_from_FEN(const std::string &FEN) {
             break;
         }
         if (isdigit(it)) {
-            for (int col = 0; col < static_cast<int>(it); col++) {
+            int num_skips = it - '0';
+            for (int col = 0; col < num_skips; col++) {
                 set_piece(current_row, current_col + col, Piece{PieceType::NONE, PieceColor::NONE});
             }
-            current_col += static_cast<int>(it);
+            current_col += num_skips;
         } else {
             set_piece(current_row, current_col, piece_from_FEN_char(it));
             current_col += 1;
         }
     }
+}
+
+bool Board::has_castling_rights_queen_side(const PieceColor &color) const {
+    return color == PieceColor::WHITE ? m_castling_rights.white_queen_side : m_castling_rights.black_queen_side;
+}
+
+bool Board::has_castling_rights_king_side(const PieceColor &color) const {
+    return color == PieceColor::WHITE ? m_castling_rights.white_king_side : m_castling_rights.black_king_side;
 }
 
 bool Board::is_in_bounds(int row, int col) {
