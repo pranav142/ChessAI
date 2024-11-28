@@ -14,8 +14,8 @@ Board::Board() {
 }
 
 void Board::initialize() {
-    //load_from_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    load_from_FEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+    load_from_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    //load_from_FEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
     reset_castling_rights(m_castling_rights);
 }
 
@@ -87,7 +87,31 @@ void Board::update_castling_rights(const Move &move) {
     }
 }
 
+void Board::update_en_passant_target(const Move &move) {
+    clear_en_passant_target();
+
+    if (move.moved_piece.type == PieceType::PAWN) {
+        int amount_moved = move.from.row - move.to.row;
+
+        if (abs(amount_moved) == 2) {
+            int en_passant_row = (move.to.row + move.from.row) / 2;
+            set_en_passant_target({en_passant_row, move.from.col});
+            std::clog << "En passant target = " << m_en_passant_target.row << m_en_passant_target.col << "\n";
+        }
+    }
+}
+
+void Board::clear_en_passant_target() {
+    m_en_passant_target = {-1 , -1};
+}
+
+void Board::set_en_passant_target(const Position &position) {
+    m_en_passant_target = position;
+}
+
+
 void Board::make_move(const Move &move) {
+    update_en_passant_target(move);
     update_castling_rights(move);
 
     switch (move.type) {
@@ -107,7 +131,6 @@ void Board::make_move(const Move &move) {
             Position rook_to = is_kingside
                                    ? Position{move.from.row, move.to.col - 1}
                                    : Position{move.from.row, move.to.col + 1};
-
             auto rook = get_piece(rook_from.row, rook_from.col);
             set_piece(rook_to.row, rook_to.col, rook);
             set_piece(rook_from.row, rook_from.col, Piece{PieceType::NONE, PieceColor::NONE});
@@ -192,6 +215,10 @@ void Board::load_from_FEN(const std::string &FEN) {
             current_col += 1;
         }
     }
+}
+
+Position Board::get_en_passant_target() const {
+    return m_en_passant_target;
 }
 
 bool Board::has_castling_rights_queen_side(const PieceColor &color) const {

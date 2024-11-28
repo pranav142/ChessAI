@@ -38,6 +38,8 @@ public:
 
     void load_from_FEN(const std::string &FEN);
 
+    [[nodiscard]] Position get_en_passant_target() const;
+
     [[nodiscard]] bool has_castling_rights_queen_side(const PieceColor& color) const;
 
     [[nodiscard]] bool has_castling_rights_king_side(const PieceColor& color) const;
@@ -47,11 +49,18 @@ private:
 
     void update_castling_rights(const Move &move);
 
+    void update_en_passant_target(const Move &move);
+
+    void clear_en_passant_target();
+
+    void set_en_passant_target(const Position &position);
+
 private:
     Piece m_board[BOARD_SIZE][BOARD_SIZE];
 
     Piece m_empty_piece = Piece{PieceType::NONE, PieceColor::NONE};
     CastlingRights m_castling_rights;
+    Position m_en_passant_target = Position{-1, -1};
 };
 
 

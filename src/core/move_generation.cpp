@@ -4,6 +4,8 @@
 
 #include "move_generation.h"
 
+#include <iostream>
+
 std::vector<Move> generate_pawn_moves(const Board &board, const Position position, const Piece &piece) {
     std::vector<Move> available_moves;
     int direction = (piece.color == PieceColor::WHITE) ? -1 : 1;
@@ -38,8 +40,18 @@ std::vector<Move> generate_pawn_moves(const Board &board, const Position positio
         available_moves.push_back(capture_right_move);
     }
 
+    Position en_passant_target = board.get_en_passant_target();
+    if (en_passant_target.row > -1 && en_passant_target.col > -1) {
+        if (en_passant_target.row == position.row + direction) {
+            if (en_passant_target.col == position.col - 1 || en_passant_target.col == position.col + 1) {
+                Position captured_position = Position{position.row, en_passant_target.col};
+                Piece captured_piece = board.get_piece(position.row, en_passant_target.col);
+                available_moves.push_back(create_en_passant_move(position, en_passant_target, piece, captured_piece, captured_position));
+            }
+        }
+    }
+
     // check if can promote
-    // check if can en passant
 
     return available_moves;
 }
@@ -52,7 +64,8 @@ std::vector<Move> generate_pawn_attacking_moves(const Board &board, const Positi
     Position capture_right{position.row + direction, position.col + 1};
 
     if (!board.is_empty(capture_left.row, capture_left.col) &&
-        board.get_piece(capture_left.row, capture_left.col).color != piece.color || board.is_empty(capture_left.row, capture_left.col)) {
+        board.get_piece(capture_left.row, capture_left.col).color != piece.color || board.is_empty(
+            capture_left.row, capture_left.col)) {
         Move capture_left_move = create_capture_move(position, capture_left, piece,
                                                      board.get_piece(capture_left.row, capture_left.col));
         available_moves.push_back(capture_left_move);
@@ -70,7 +83,6 @@ std::vector<Move> generate_pawn_attacking_moves(const Board &board, const Positi
 
     return available_moves;
 }
-
 
 
 std::vector<Move> generate_bishop_moves(const Board &board, const Position position, const Piece &piece) {
@@ -228,10 +240,7 @@ std::vector<Move> generate_queen_moves(const Board &board, const Position positi
     return available_moves;
 }
 
-#include <iostream>
-
 bool can_castle_kingside(const Piece &king, const Position &king_position, const Board &board) {
-    // Ensure the king has not moved
     if (king.type != PieceType::KING) {
         return false;
     }
@@ -246,15 +255,11 @@ bool can_castle_kingside(const Piece &king, const Position &king_position, const
         }
     }
 
-
     for (int col = king_position.col; col <= king_position.col + 2; col++) {
         if (is_square_attacked_by_color(king_position.row, col, get_enemy_color(king.color), board)) {
             return false;
         }
     }
-
-
-
 
     return true;
 }
@@ -274,12 +279,12 @@ bool can_castle_queenside(const Piece &king, const Position &king_position, cons
         }
     }
 
-
-    for (int col = king_position.col; col >= king_position.col - 2; col--) {
+    for (int col = king_position.col - 1; col >= king_position.col - 3; col--) {
         if (is_square_attacked_by_color(king_position.row, col, get_enemy_color(king.color), board)) {
             return false;
         }
     }
+
 
     return true;
 }
@@ -342,6 +347,10 @@ std::vector<Move> generate_king_moves(const Board &board, const Position positio
         if (row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE) {
             Position new_pos{row, col};
 
+            if (is_square_attacked_by_color(row, col, get_enemy_color(piece.color), board)) {
+                continue;
+            }
+
             if (board.is_empty(new_pos.row, new_pos.col)) {
                 Move move = create_normal_move(position, new_pos, piece);
                 available_moves.push_back(move);
@@ -385,7 +394,6 @@ std::vector<Move> generate_attacking_moves(const Piece &piece, const Board &boar
         case PieceType::QUEEN:
             return generate_queen_moves(board, position, piece);
         case PieceType::KING:
-            // this needs to be adjusted
             return generate_king_attacking_moves(board, position, piece);
         default: ;
     }
@@ -419,7 +427,7 @@ bool is_square_attacked_by_color(int row, int col, const PieceColor &color, cons
         for (int j = 0; j < BOARD_SIZE; j++) {
             auto piece = board.get_piece(i, j);
             if (piece.color == color && is_piece_attacking_square(piece, Position{i, j}, Position{row, col}, board)) {
-               return true;
+                return true;
             }
         }
     }

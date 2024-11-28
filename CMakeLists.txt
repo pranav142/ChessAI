@@ -40,6 +40,7 @@ add_executable(
         GTests_run
         Google_tests/BoardTests.cpp
         ${CORE_FILES}
+        Google_tests/MoveGenerationTest.cpp
 )
 
 target_include_directories(GTests_run PRIVATE src/core)

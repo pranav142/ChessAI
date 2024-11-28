@@ -31,7 +31,6 @@ bool Game::is_empty_square(int row, int col) const {
     return m_board.is_empty(row, col);
 }
 
-
 const Piece &Game::get_piece(int row, int col) const {
     return m_board.get_piece(row, col);
 }
