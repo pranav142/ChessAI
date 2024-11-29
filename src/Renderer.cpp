@@ -1,5 +1,7 @@
 #include "Renderer.h"
 
+#include <unordered_set>
+
 void Renderer::initialize(int height, int width) {
     m_x_offset = (static_cast<float>(height) - m_square_size * BOARD_SIZE) / 2.0f;
     m_y_offset = (static_cast<float>(width) - m_square_size * BOARD_SIZE) / 2.0f;
@@ -27,7 +29,9 @@ bool Renderer::is_light_square(int row, int col) const {
 }
 
 sf::Color Renderer::get_valid_square_color(const Position &position) const {
-    return is_light_square(position.row, position.col) ? m_sprite_manager->get_light_square_valid_color() : m_sprite_manager->get_dark_square_valid_color();
+    return is_light_square(position.row, position.col)
+               ? m_sprite_manager->get_light_square_valid_color()
+               : m_sprite_manager->get_dark_square_valid_color();
 }
 
 void Renderer::draw_valid_square(const Position &position, sf::RenderWindow &window) const {
@@ -36,9 +40,23 @@ void Renderer::draw_valid_square(const Position &position, sf::RenderWindow &win
     draw_square(pixel_location, window, color);
 }
 
+bool Renderer::square_is_in_vector(const Position &square, const std::vector<Position> &vector) const {
+    for (const auto &pos: vector) {
+        if (square.row == pos.row && square.col == pos.col) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void Renderer::draw_available_moves(const std::vector<Move> &moves, sf::RenderWindow &window) const {
-    for (auto move: moves) {
-        draw_valid_square(move.to, window);
+    std::vector<Position> drawn_squares;
+
+    for (const auto &move: moves) {
+        if (square_is_in_vector(move.to, drawn_squares)) {
+            draw_valid_square(move.to, window);
+            drawn_squares.push_back(move.to);
+        }
     }
 }
 

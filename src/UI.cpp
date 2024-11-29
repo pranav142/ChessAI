@@ -85,8 +85,13 @@ void UI::handle_piece_clicked(const Player &player) {
 void UI::handle_piece_dropped() {
     if (m_game.is_move_valid(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y,
                              m_state.to_square.x, m_state.to_square.y)) {
+        // If the move is a promotion we should prompt the user to select a piece
+        Piece promoted_piece = {PieceType::NONE, PieceColor::NONE};
+        if (is_promotion_move(m_state.selected_piece, m_state.to_square.x)) {
+            promoted_piece = {PieceType::QUEEN, m_state.selected_piece.color};
+        }
         m_game.make_move(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y,
-                         m_state.to_square.x, m_state.to_square.y);
+                         m_state.to_square.x, m_state.to_square.y, promoted_piece);
         m_renderer.draw_board(m_game.get_board(), m_window);
     }
     m_state.type = UIStateType::IDLE;

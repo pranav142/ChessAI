@@ -6,6 +6,16 @@
 
 #include <iostream>
 
+
+bool is_promotion_move(const Piece &piece, int to_row) {
+    if (piece.type != PieceType::PAWN) {
+        return false;
+    }
+    int end_row = (piece.color == PieceColor::WHITE) ? 0 : 7;
+    return to_row == end_row;
+}
+
+
 std::vector<Move> generate_pawn_moves(const Board &board, const Position position, const Piece &piece) {
     std::vector<Move> available_moves;
     int direction = (piece.color == PieceColor::WHITE) ? -1 : 1;
@@ -13,8 +23,20 @@ std::vector<Move> generate_pawn_moves(const Board &board, const Position positio
 
     Position forward_pos{position.row + direction, position.col};
     if (board.is_empty(forward_pos.row, forward_pos.col)) {
-        Move forward = create_normal_move(position, forward_pos, piece);
-        available_moves.push_back(forward);
+        if (is_promotion_move(piece, forward_pos.row)) {
+            Piece empty_piece = {PieceType::NONE, PieceColor::NONE};
+            available_moves.push_back(create_promotion_move(position, forward_pos, piece, empty_piece,
+                                                            Piece{PieceType::QUEEN, piece.color}));
+            available_moves.push_back(create_promotion_move(position, forward_pos, piece, empty_piece,
+                                                            Piece{PieceType::BISHOP, piece.color}));
+            available_moves.push_back(create_promotion_move(position, forward_pos, piece, empty_piece,
+                                                            Piece{PieceType::ROOK, piece.color}));
+            available_moves.push_back(create_promotion_move(position, forward_pos, piece, empty_piece,
+                                                            Piece{PieceType::KNIGHT, piece.color}));
+        } else {
+            Move forward = create_normal_move(position, forward_pos, piece);
+            available_moves.push_back(forward);
+        }
 
         Position double_forward_pos{position.row + 2 * direction, position.col};
         if (position.row == start_row && board.is_empty(double_forward_pos.row, double_forward_pos.col)) {
@@ -28,16 +50,40 @@ std::vector<Move> generate_pawn_moves(const Board &board, const Position positio
 
     if (!board.is_empty(capture_left.row, capture_left.col) &&
         board.get_piece(capture_left.row, capture_left.col).color != piece.color) {
-        Move capture_left_move = create_capture_move(position, capture_left, piece,
-                                                     board.get_piece(capture_left.row, capture_left.col));
-        available_moves.push_back(capture_left_move);
+        if (is_promotion_move(piece, capture_left.row)) {
+            auto captured_piece = board.get_piece(capture_left.row, capture_left.col);
+            available_moves.push_back(create_promotion_move(position, capture_left, piece, captured_piece,
+                                                            Piece{PieceType::QUEEN, piece.color}));
+            available_moves.push_back(create_promotion_move(position, capture_left, piece, captured_piece,
+                                                            Piece{PieceType::BISHOP, piece.color}));
+            available_moves.push_back(create_promotion_move(position, capture_left, piece, captured_piece,
+                                                            Piece{PieceType::ROOK, piece.color}));
+            available_moves.push_back(create_promotion_move(position, capture_left, piece, captured_piece,
+                                                            Piece{PieceType::KNIGHT, piece.color}));
+        } else {
+            Move capture_left_move = create_capture_move(position, capture_left, piece,
+                                                         board.get_piece(capture_left.row, capture_left.col));
+            available_moves.push_back(capture_left_move);
+        }
     }
 
     if (!board.is_empty(capture_right.row, capture_right.col) && board.get_piece(capture_right.row, capture_right.col).
         color != piece.color) {
-        Move capture_right_move = create_capture_move(position, capture_right, piece,
-                                                      board.get_piece(capture_right.row, capture_right.col));
-        available_moves.push_back(capture_right_move);
+        if (is_promotion_move(piece, capture_right.row)) {
+            auto captured_piece = board.get_piece(capture_right.row, capture_right.col);
+            available_moves.push_back(create_promotion_move(position, capture_right, piece, captured_piece,
+                                                            Piece{PieceType::QUEEN, piece.color}));
+            available_moves.push_back(create_promotion_move(position, capture_right, piece, captured_piece,
+                                                            Piece{PieceType::BISHOP, piece.color}));
+            available_moves.push_back(create_promotion_move(position, capture_right, piece, captured_piece,
+                                                            Piece{PieceType::ROOK, piece.color}));
+            available_moves.push_back(create_promotion_move(position, capture_right, piece, captured_piece,
+                                                            Piece{PieceType::KNIGHT, piece.color}));
+        } else {
+            Move capture_right_move = create_capture_move(position, capture_right, piece,
+                                                          board.get_piece(capture_right.row, capture_right.col));
+            available_moves.push_back(capture_right_move);
+        }
     }
 
     Position en_passant_target = board.get_en_passant_target();
@@ -46,12 +92,11 @@ std::vector<Move> generate_pawn_moves(const Board &board, const Position positio
             if (en_passant_target.col == position.col - 1 || en_passant_target.col == position.col + 1) {
                 Position captured_position = Position{position.row, en_passant_target.col};
                 Piece captured_piece = board.get_piece(position.row, en_passant_target.col);
-                available_moves.push_back(create_en_passant_move(position, en_passant_target, piece, captured_piece, captured_position));
+                available_moves.push_back(
+                    create_en_passant_move(position, en_passant_target, piece, captured_piece, captured_position));
             }
         }
     }
-
-    // check if can promote
 
     return available_moves;
 }
@@ -398,7 +443,7 @@ std::vector<Move> generate_attacking_moves(const Piece &piece, const Board &boar
         default: ;
     }
 
-    return std::vector<Move>();
+    return {};
 }
 
 // Generating Moves is SUS
@@ -419,7 +464,7 @@ std::vector<Move> generate_moves(const Piece &piece, const Board &board, Positio
         default: ;
     }
 
-    return std::vector<Move>();
+    return {};
 }
 
 bool is_square_attacked_by_color(int row, int col, const PieceColor &color, const Board &board) {

@@ -15,4 +15,6 @@ bool is_piece_attacking_square(const Piece& piece, Position piece_position, Posi
 
 bool is_square_attacked_by_color(int row, int col, const PieceColor &color, const Board& board);
 
+bool is_promotion_move(const Piece &piece, int to_row);
+
 #endif //MOVE_GENERATION_H

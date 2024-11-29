@@ -14,8 +14,8 @@ Board::Board() {
 }
 
 void Board::initialize() {
-    load_from_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    //load_from_FEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+    // load_from_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    load_from_FEN("r3k2r/1P6/8/8/8/8/8/R3K2R w KQkq - 0 1");
     reset_castling_rights(m_castling_rights);
 }
 

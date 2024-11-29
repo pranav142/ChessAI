@@ -7,6 +7,7 @@
 
 #include "Game.h"
 #include "Renderer.h"
+#include "move_generation.h"
 
 enum class UIStateType {
     IDLE,

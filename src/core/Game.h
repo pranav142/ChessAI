@@ -36,7 +36,7 @@ public:
 
     [[nodiscard]] bool is_move_valid(const Piece &piece, int from_row, int from_col, int to_row, int to_col) const;
 
-    void make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col);
+    void make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col, const Piece &promoted_piece);
 
     void make_computer_move(const PieceColor &color);
 

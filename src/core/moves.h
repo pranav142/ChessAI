@@ -41,6 +41,6 @@ Move create_en_passant_move(const Position &from, const Position &to, const Piec
 
 Move create_capture_move(const Position &from, const Position &to, const Piece &moved_piece, const Piece &captured_piece);
 
-Move create_promotion_move(const Position &from, const Position &to, const Piece &moved_piece, const Piece &captured_piece, const Position &captured_at, const Piece &promotion_piece);
+Move create_promotion_move(const Position &from, const Position &to, const Piece &moved_piece, const Piece &captured_piece, const Piece &promotion_piece);
 
 #endif //MOVES_H

@@ -60,6 +60,8 @@ private:
 
     void draw_valid_square(const Position &position, sf::RenderWindow &window) const;
 
+    bool square_is_in_vector(const Position &square, const std::vector<Position> &vector) const;
+
 private:
     std::unique_ptr<SpriteManager> m_sprite_manager;
 

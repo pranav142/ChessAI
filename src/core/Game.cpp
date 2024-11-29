@@ -54,17 +54,21 @@ bool Game::is_move_valid(const Piece &piece, int from_row, int from_col, int to_
     return false;
 }
 
-void Game::make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col) {
+// TODO: Some way to ensure we always select a move
+void Game::make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col, const Piece& promoted_piece) {
     auto moves = generate_moves(piece, m_board, Position{from_row, from_col});
 
     Move selected_move;
     for (auto move: moves) {
         if (move.to.row == to_row && move.to.col == to_col) {
+            if (move.type == MoveType::PROMOTION && move.promoted_piece.type == promoted_piece.type && move.promoted_piece.color == promoted_piece.color) {
+                selected_move = move;
+                break;
+            }
             selected_move = move;
         }
     }
     print_move(selected_move);
-
     m_board.make_move(selected_move);
     switch_turns();
 }

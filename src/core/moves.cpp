@@ -24,7 +24,8 @@ Move create_castle_move(const Position &from, const Position &to, const Piece &m
     return move;
 }
 
-Move create_en_passant_move(const Position &from, const Position &to, const Piece &moved_piece, const Piece &captured_piece, const Position &capture_at) {
+Move create_en_passant_move(const Position &from, const Position &to, const Piece &moved_piece,
+                            const Piece &captured_piece, const Position &capture_at) {
     Move move{};
     move.capture_at = capture_at;
     move.from = from;
@@ -35,7 +36,8 @@ Move create_en_passant_move(const Position &from, const Position &to, const Piec
     return move;
 }
 
-Move create_capture_move(const Position &from, const Position &to, const Piece &moved_piece, const Piece &captured_piece) {
+Move create_capture_move(const Position &from, const Position &to, const Piece &moved_piece,
+                         const Piece &captured_piece) {
     Move move{};
     move.from = from;
     move.to = to;
@@ -46,13 +48,17 @@ Move create_capture_move(const Position &from, const Position &to, const Piece &
     return move;
 }
 
-Move create_promotion_move(const Position &from, const Position &to, const Piece &moved_piece, const Piece &captured_piece, const Position &captured_at, const Piece &promotion_piece) {
+Move create_promotion_move(const Position &from, const Position &to, const Piece &moved_piece,
+                           const Piece &captured_piece, const Piece &promotion_piece) {
     Move move{};
     move.from = from;
     move.to = to;
     move.moved_piece = moved_piece;
     move.captured_piece = captured_piece;
-    move.capture_at = captured_at;
+    move.capture_at = Position{-1, -1};
+    if (captured_piece.type != PieceType::NONE) {
+        move.capture_at = to;
+    }
     move.promoted_piece = promotion_piece;
     move.type = MoveType::PROMOTION;
     return move;
@@ -82,10 +88,12 @@ void print_move(const Move &move) {
             break;
         case MoveType::CASTLE: std::cout << "Castling\n";
             break;
-        case MoveType::PROMOTION: std::cout << "Promotion\n";
+        case MoveType::PROMOTION: {
+            std::cout << "Promotion\n";
+            std::cout << "  Promoted Piece: " << piece_type_to_string(move.promoted_piece.type) << "\n";
             break;
+        }
         case MoveType::EN_PASSANT: std::cout << "En Passant\n";
             break;
     }
 }
-
