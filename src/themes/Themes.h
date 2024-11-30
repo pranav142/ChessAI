@@ -8,7 +8,7 @@ class SpriteManager {
 public:
     virtual ~SpriteManager() = default;
 
-    virtual sf::Sprite get_piece_sprite(const Piece &piece) = 0;
+    virtual sf::Sprite get_piece_sprite(const Piece& piece) = 0;
 
     virtual sf::Color get_dark_square_color() = 0;
 
@@ -17,13 +17,15 @@ public:
     virtual sf::Color get_light_square_valid_color() = 0;
 
     virtual sf::Color get_dark_square_valid_color() = 0;
+
+    virtual sf::Color get_overlay_color() = 0;
 };
 
 class ClassicThemeManager final : public SpriteManager {
 public:
     ClassicThemeManager();
 
-    sf::Sprite get_piece_sprite(const Piece &piece) override;
+    sf::Sprite get_piece_sprite(const Piece& piece) override;
 
     sf::Color get_dark_square_color() override;
 
@@ -33,6 +35,7 @@ public:
 
     sf::Color get_dark_square_valid_color() override;
 
+    sf::Color get_overlay_color() override;
 private:
     static std::string get_piece_image_path(const Piece &piece);
 

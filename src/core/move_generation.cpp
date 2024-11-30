@@ -4,9 +4,6 @@
 
 #include "move_generation.h"
 
-#include <iostream>
-
-
 bool is_promotion_move(const Piece &piece, int to_row) {
     if (piece.type != PieceType::PAWN) {
         return false;

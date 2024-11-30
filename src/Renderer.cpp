@@ -1,5 +1,6 @@
 #include "Renderer.h"
 
+#include <iostream>
 #include <unordered_set>
 
 void Renderer::initialize(int height, int width) {
@@ -57,6 +58,35 @@ void Renderer::draw_available_moves(const std::vector<Move> &moves, sf::RenderWi
             draw_valid_square(move.to, window);
             drawn_squares.push_back(move.to);
         }
+    }
+}
+
+void Renderer::show_promotion_options(const PieceColor &piece_color, const Position &promotion_position,
+                                      sf::RenderWindow &window) {
+    m_showing_promotion_options = true;
+
+    Piece pawn = {PieceType::PAWN, piece_color};
+
+    int overlay_start_row = piece_color == PieceColor::WHITE ? promotion_position.row + 1 : promotion_position.row - 4;
+
+    sf::RectangleShape rectangle;
+    rectangle.setSize(sf::Vector2f(m_square_size, m_square_size * 4));
+    rectangle.setFillColor(m_sprite_manager->get_overlay_color());
+    rectangle.setOutlineThickness(0);
+    rectangle.setPosition(get_square_position(overlay_start_row, promotion_position.col));
+
+    window.draw(rectangle);
+    draw_piece(pawn, promotion_position.row, promotion_position.col, window);
+
+    Piece pieces[4] = {
+        {PieceType::BISHOP, piece_color},
+        {PieceType::ROOK, piece_color},
+        {PieceType::KNIGHT, piece_color},
+        {PieceType::QUEEN, piece_color}
+    };
+
+    for (int i = 0; i < 4; i++) {
+        draw_piece(pieces[i], overlay_start_row + i, promotion_position.col, window);
     }
 }
 

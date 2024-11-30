@@ -9,6 +9,7 @@ ClassicThemeManager::ClassicThemeManager() {
 
 sf::Sprite ClassicThemeManager::get_piece_sprite(const Piece &piece) {
     if (piece.type == PieceType::NONE) {
+        std::cerr << "returning empty sprite";
         return m_empty_sprite;
     }
 
@@ -27,7 +28,7 @@ sf::Sprite ClassicThemeManager::get_piece_sprite(const Piece &piece) {
     }
 
     m_texture_cache[key] = texture;
-    sprite.setTexture(texture);
+    sprite.setTexture(m_texture_cache[key]);
     return sprite;
 }
 
@@ -45,6 +46,10 @@ sf::Color ClassicThemeManager::get_light_square_valid_color() {
 
 sf::Color ClassicThemeManager::get_dark_square_valid_color() {
     return {34, 139, 34, 150};
+}
+
+sf::Color ClassicThemeManager::get_overlay_color() {
+    return {213, 232, 163};
 }
 
 std::string ClassicThemeManager::get_piece_image_path(const Piece &piece) {

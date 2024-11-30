@@ -4,9 +4,6 @@
 
 #include "UI.h"
 
-#include <iostream>
-
-
 UI::UI(): m_renderer(std::make_unique<ClassicThemeManager>(), 60), m_window(sf::VideoMode(480, 480), "Chess Engine"),
           m_state(UIState{UIStateType::IDLE}) {
     m_game.initialize();
@@ -82,12 +79,21 @@ void UI::handle_piece_clicked(const Player &player) {
                                   m_state.m_current_mouse_position.y, m_window);
 }
 
+// Cleaner state management needed
 void UI::handle_piece_dropped() {
     if (m_game.is_move_valid(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y,
                              m_state.to_square.x, m_state.to_square.y)) {
-        // If the move is a promotion we should prompt the user to select a piece
         Piece promoted_piece = {PieceType::NONE, PieceColor::NONE};
         if (is_promotion_move(m_state.selected_piece, m_state.to_square.x)) {
+            m_renderer.draw_empty_square(m_state.from_square.x, m_state.from_square.y, m_window);
+            m_renderer.draw_empty_square(m_state.to_square.x, m_state.to_square.y, m_window);
+            m_renderer.show_promotion_options(m_state.selected_piece.color,
+                                              Position{m_state.to_square.x, m_state.to_square.y}, m_window);
+            // TODO: get promotion choice
+            // clean up board
+            m_window.display();
+            while (true) {
+            };
             promoted_piece = {PieceType::QUEEN, m_state.selected_piece.color};
         }
         m_game.make_move(m_state.selected_piece, m_state.from_square.x, m_state.from_square.y,

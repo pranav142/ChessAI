@@ -33,6 +33,8 @@ public:
 
     void draw_available_moves(const std::vector<Move> &moves, sf::RenderWindow &window) const;
 
+    void show_promotion_options(const PieceColor &piece_color, const Position &position, sf::RenderWindow &window);
+
 private:
     [[nodiscard]] bool is_x_in_board(float x) const;
 
@@ -68,6 +70,8 @@ private:
     float m_square_size;
     float m_x_offset = 0;
     float m_y_offset = 0;
+
+    bool m_showing_promotion_options = false;
 };
 
 
