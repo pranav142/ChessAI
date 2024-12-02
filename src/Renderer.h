@@ -35,6 +35,8 @@ public:
 
     void show_promotion_options(const PieceColor &piece_color, const Position &position, sf::RenderWindow &window);
 
+    Piece get_promotion_option(sf::Vector2i mouse_position, const Position &promotion_position, const PieceColor &piece_color) const;
+
 private:
     [[nodiscard]] bool is_x_in_board(float x) const;
 

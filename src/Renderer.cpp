@@ -44,17 +44,17 @@ void Renderer::draw_valid_square(const Position &position, sf::RenderWindow &win
 bool Renderer::square_is_in_vector(const Position &square, const std::vector<Position> &vector) const {
     for (const auto &pos: vector) {
         if (square.row == pos.row && square.col == pos.col) {
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 void Renderer::draw_available_moves(const std::vector<Move> &moves, sf::RenderWindow &window) const {
     std::vector<Position> drawn_squares;
 
     for (const auto &move: moves) {
-        if (square_is_in_vector(move.to, drawn_squares)) {
+        if (!square_is_in_vector(move.to, drawn_squares)) {
             draw_valid_square(move.to, window);
             drawn_squares.push_back(move.to);
         }
@@ -68,14 +68,13 @@ void Renderer::show_promotion_options(const PieceColor &piece_color, const Posit
     Piece pawn = {PieceType::PAWN, piece_color};
 
     int overlay_start_row = piece_color == PieceColor::WHITE ? promotion_position.row + 1 : promotion_position.row - 4;
-
     sf::RectangleShape rectangle;
     rectangle.setSize(sf::Vector2f(m_square_size, m_square_size * 4));
     rectangle.setFillColor(m_sprite_manager->get_overlay_color());
     rectangle.setOutlineThickness(0);
     rectangle.setPosition(get_square_position(overlay_start_row, promotion_position.col));
-
     window.draw(rectangle);
+
     draw_piece(pawn, promotion_position.row, promotion_position.col, window);
 
     Piece pieces[4] = {
@@ -89,6 +88,33 @@ void Renderer::show_promotion_options(const PieceColor &piece_color, const Posit
         draw_piece(pieces[i], overlay_start_row + i, promotion_position.col, window);
     }
 }
+
+Piece Renderer::get_promotion_option(sf::Vector2i mouse_position, const Position& promotion_position, const PieceColor& piece_color) const {
+    Piece pieces[4] = {
+        {PieceType::BISHOP, piece_color},
+        {PieceType::ROOK, piece_color},
+        {PieceType::KNIGHT, piece_color},
+        {PieceType::QUEEN, piece_color}
+    };
+
+    int overlay_start_row = piece_color == PieceColor::WHITE ? promotion_position.row + 1 : promotion_position.row - 4;
+    sf::Vector2i square = get_square_location(mouse_position);
+    if (square.y != promotion_position.col) {
+        return {PieceType::NONE, PieceColor::NONE};
+    }
+
+    if (square.x < overlay_start_row || square.x > overlay_start_row + 3) {
+        return {PieceType::NONE, PieceColor::NONE};
+    }
+
+    return pieces[square.x - overlay_start_row];
+}
+
+//Piece Renderer::get_promotion_option(int x, int y, const PieceColor& piece_color, const Position &promotion_position) const {
+//
+//    sf::Vector2i clicked_square = get_square_location(sf::Vector2i(x, y));
+//    return ;
+//}
 
 // Returns the chess square row and column from a pixel position on the window
 sf::Vector2i Renderer::get_square_location(const sf::Vector2i &position) const {
@@ -111,6 +137,7 @@ bool Renderer::is_y_in_board(const float y) const {
     return (y <= ((1 + BOARD_SIZE) * m_square_size + m_y_offset) && y >= m_y_offset);
 }
 
+// We need to change vector 2i
 bool Renderer::is_in_chess_board(sf::Vector2i position) const {
     return is_x_in_board(static_cast<float>(position.x)) && is_y_in_board(static_cast<float>(position.y));
 }

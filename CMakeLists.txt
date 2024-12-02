@@ -26,6 +26,8 @@ set(SOURCE_FILES src/main.cpp
         src/themes/ClassicThemeManager.cpp
         src/UI.cpp
         src/Renderer.cpp
+        src/InputManager.cpp
+        src/InputManager.h
 )
 
 add_executable(chess ${SOURCE_FILES} ${CORE_FILES})
