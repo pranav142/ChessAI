@@ -13,6 +13,7 @@
 enum class ScreenStateType {
     PLAYING,
     PROMOTION,
+    GAME_OVER,
 };
 
 struct PromotionState {
@@ -33,6 +34,8 @@ private:
     void handle_human_turn(const Player &player, const Event &event);
 
     void handle_computer_turn(const Player &player);
+
+    void handle_end_screen_rendering();
 
     void process_event(const sf::Event &event);
 

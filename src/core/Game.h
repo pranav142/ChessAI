@@ -44,6 +44,10 @@ public:
 
     void set_FEN(std::string fen);
 
+    bool is_checkmate();
+
+    bool is_stalemate();
+
     void make_move(const Move& move);
 
     void unmake_move(const Move &move);

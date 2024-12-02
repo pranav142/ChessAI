@@ -9,7 +9,8 @@
 #include "move_generation.h"
 #include <thread>
 
-Game::Game() {}
+Game::Game() {
+}
 
 void Game::initialize() {
     m_board.initialize();
@@ -72,13 +73,15 @@ bool Game::is_move_valid(const Piece &piece, int from_row, int from_col, int to_
 }
 
 // TODO: Some way to ensure we always select a move
-void Game::make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col, const Piece& promoted_piece) {
+void Game::make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col,
+                     const Piece &promoted_piece) {
     auto moves = generate_moves(piece, m_board, Position{from_row, from_col});
 
     Move selected_move;
     for (auto move: moves) {
         if (move.to.row == to_row && move.to.col == to_col) {
-            if (move.type == MoveType::PROMOTION && move.promoted_piece.type == promoted_piece.type && move.promoted_piece.color == promoted_piece.color) {
+            if (move.type == MoveType::PROMOTION && move.promoted_piece.type == promoted_piece.type && move.
+                promoted_piece.color == promoted_piece.color) {
                 selected_move = move;
                 break;
             }
@@ -94,12 +97,40 @@ void Game::set_FEN(std::string fen) {
     m_board.load_from_FEN(fen);
 }
 
+bool Game::is_checkmate() {
+    auto moves = get_all_legal_moves();
+
+    Position king_position = m_board.get_king_position(m_current_player->color);
+    bool king_in_check = is_square_attacked_by_color(king_position.row, king_position.col,
+                                                     get_enemy_color(m_current_player->color), m_board);
+
+    if (king_in_check && moves.empty()) {
+        return true;
+    }
+
+    return false;
+}
+
+bool Game::is_stalemate() {
+    auto moves = get_all_legal_moves();
+
+    Position king_position = m_board.get_king_position(m_current_player->color);
+    bool king_in_check = is_square_attacked_by_color(king_position.row, king_position.col,
+                                                     get_enemy_color(m_current_player->color), m_board);
+
+    if (!king_in_check && moves.empty()) {
+        return true;
+    }
+
+    return false;
+}
+
 void Game::make_move(const Move &move) {
     m_board.make_move(move);
     switch_turns();
 }
 
-void Game::unmake_move(const Move& move) {
+void Game::unmake_move(const Move &move) {
     m_board.unmake_move(move);
     switch_turns();
 }
@@ -109,4 +140,3 @@ void Game::make_computer_move(const PieceColor &color) {
     m_board.make_move(move);
     switch_turns();
 }
-

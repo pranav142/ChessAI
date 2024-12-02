@@ -4,6 +4,7 @@
 
 #include "UI.h"
 
+#include <iostream>
 #include <thread>
 
 UI::UI(): m_renderer(std::make_unique<ClassicThemeManager>(), 60), m_window(sf::VideoMode(480, 480), "Chess Engine"),
@@ -84,10 +85,19 @@ void UI::handle_computer_turn(const Player &player) {
     m_game.make_computer_move(player.color);
 }
 
+// TODO: Enable actual rendering
+void UI::handle_end_screen_rendering() {
+    std::clog << "Game over" << std::endl;
+}
+
 void UI::handle_user_input(const Event &event) {
     if (event.type == EventType::WINDOW_CLOSED) {
         m_running = false;
         return;
+    }
+
+    if (m_game.is_checkmate() || m_game.is_stalemate()) {
+        m_screen_state = ScreenStateType::GAME_OVER;
     }
 
     m_renderer.draw_board(m_game.get_board(), m_window);
@@ -106,6 +116,10 @@ void UI::handle_user_input(const Event &event) {
         handle_promotion_rendering();
         handle_promotion_piece_selection(event);
     }
+
+    if (m_screen_state == ScreenStateType::GAME_OVER) {
+        handle_end_screen_rendering();
+    }
 }
 
 void UI::handle_promotion_rendering() {
@@ -122,11 +136,13 @@ void UI::handle_promotion_piece_selection(const Event &event) {
                                                       Position{
                                                           m_promotion_state.to_square.x, m_promotion_state.to_square.y
                                                       }, m_promotion_state.selected_piece.color);
-       if (piece.type == PieceType::NONE) {
+        if (piece.type == PieceType::NONE) {
             return;
-       }
+        }
         m_renderer.draw_empty_square(m_promotion_state.to_square.x, m_promotion_state.to_square.y, m_window);
-        m_game.make_move(m_promotion_state.selected_piece, m_promotion_state.from_square.x, m_promotion_state.from_square.y, m_promotion_state.to_square.x, m_promotion_state.to_square.y, piece);
+        m_game.make_move(m_promotion_state.selected_piece, m_promotion_state.from_square.x,
+                         m_promotion_state.from_square.y, m_promotion_state.to_square.x, m_promotion_state.to_square.y,
+                         piece);
         m_screen_state = ScreenStateType::PLAYING;
     }
 }
