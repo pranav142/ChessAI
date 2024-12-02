@@ -9,7 +9,7 @@
 #include <random>
 #include <ctime>
 
-Move generate_AI_move(const Board &board, PieceColor pieceColor) {
+Move generate_AI_move(Board &board, PieceColor pieceColor) {
     std::vector<Move> total_moves;
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {

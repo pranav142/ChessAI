@@ -122,7 +122,6 @@ void UI::handle_promotion_piece_selection(const Event &event) {
                                                       Position{
                                                           m_promotion_state.to_square.x, m_promotion_state.to_square.y
                                                       }, m_promotion_state.selected_piece.color);
-        //print_piece(piece);
        if (piece.type == PieceType::NONE) {
             return;
        }

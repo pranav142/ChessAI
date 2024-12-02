@@ -10,27 +10,9 @@
 #include "Renderer.h"
 #include "move_generation.h"
 
-
-enum class UIStateType {
-    IDLE,
-    CLICKED,
-    DRAGGED,
-    DROPPED,
-};
-
-// Screen State
 enum class ScreenStateType {
     PLAYING,
     PROMOTION,
-};
-
-// Input State
-struct UIState {
-    UIStateType type;
-    Piece selected_piece;
-    sf::Vector2i from_square;
-    sf::Vector2i to_square;
-    sf::Vector2i m_current_mouse_position;
 };
 
 struct PromotionState {

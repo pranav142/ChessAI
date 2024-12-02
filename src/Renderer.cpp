@@ -110,12 +110,6 @@ Piece Renderer::get_promotion_option(sf::Vector2i mouse_position, const Position
     return pieces[square.x - overlay_start_row];
 }
 
-//Piece Renderer::get_promotion_option(int x, int y, const PieceColor& piece_color, const Position &promotion_position) const {
-//
-//    sf::Vector2i clicked_square = get_square_location(sf::Vector2i(x, y));
-//    return ;
-//}
-
 // Returns the chess square row and column from a pixel position on the window
 sf::Vector2i Renderer::get_square_location(const sf::Vector2i &position) const {
     const sf::Vector2i INVALID_SQUARE{-1, -1};

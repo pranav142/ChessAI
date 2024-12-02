@@ -9,6 +9,6 @@
 #include "Board.h"
 #include "moves.h"
 
-Move generate_AI_move(const Board &board, PieceColor pieceColor);
+Move generate_AI_move(Board &board, PieceColor pieceColor);
 
 #endif //AI_H

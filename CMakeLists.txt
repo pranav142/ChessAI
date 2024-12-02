@@ -20,6 +20,8 @@ set(CORE_FILES src/core/Piece.cpp
         src/core/AI.cpp
         src/core/moves.cpp
         src/core/move_generation.cpp
+        src/core/perft.cpp
+        src/core/perft.h
 )
 
 set(SOURCE_FILES src/main.cpp
@@ -43,6 +45,7 @@ add_executable(
         Google_tests/BoardTests.cpp
         ${CORE_FILES}
         Google_tests/MoveGenerationTest.cpp
+        Google_tests/PerftTest.cpp
 )
 
 target_include_directories(GTests_run PRIVATE src/core)

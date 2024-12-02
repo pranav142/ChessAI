@@ -8,12 +8,19 @@
 
 #define BOARD_SIZE 8
 
+#include <stack>
+
 // Simply stores right to castle not the ability to castle
 struct CastlingRights {
     bool white_king_side;
     bool white_queen_side;
     bool black_king_side;
     bool black_queen_side;
+};
+
+struct BoardState {
+    CastlingRights castling_rights;
+    Position en_passant_target;
 };
 
 void reset_castling_rights(CastlingRights &rights);
@@ -36,6 +43,10 @@ public:
 
     void make_move(const Move &move);
 
+    void set_to_previous_state();
+
+    void unmake_move(const Move &move);
+
     void load_from_FEN(const std::string &FEN);
 
     [[nodiscard]] Position get_en_passant_target() const;
@@ -44,6 +55,9 @@ public:
 
     [[nodiscard]] bool has_castling_rights_king_side(const PieceColor& color) const;
 
+    bool is_move_safe_for_king(const Move &move, const PieceColor& piece_color) const;
+
+    Position get_king_position(PieceColor piece_color) const;
 private:
     static bool is_in_bounds(int row, int col);
 
@@ -55,8 +69,12 @@ private:
 
     void set_en_passant_target(const Position &position);
 
+    void save_state();
+
 private:
     Piece m_board[BOARD_SIZE][BOARD_SIZE];
+
+   std::stack<BoardState> m_state_stack;
 
     Piece m_empty_piece = Piece{PieceType::NONE, PieceColor::NONE};
     CastlingRights m_castling_rights;

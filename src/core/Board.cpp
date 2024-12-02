@@ -97,21 +97,27 @@ void Board::update_en_passant_target(const Move &move) {
         if (abs(amount_moved) == 2) {
             int en_passant_row = (move.to.row + move.from.row) / 2;
             set_en_passant_target({en_passant_row, move.from.col});
-            std::clog << "En passant target = " << m_en_passant_target.row << m_en_passant_target.col << "\n";
         }
     }
 }
 
 void Board::clear_en_passant_target() {
-    m_en_passant_target = {-1 , -1};
+    m_en_passant_target = {-1, -1};
 }
 
 void Board::set_en_passant_target(const Position &position) {
     m_en_passant_target = position;
 }
 
+void Board::save_state() {
+    BoardState state;
+    state.castling_rights = m_castling_rights;
+    state.en_passant_target = m_en_passant_target;
+    m_state_stack.push(state);
+}
 
 void Board::make_move(const Move &move) {
+    save_state();
     update_en_passant_target(move);
     update_castling_rights(move);
 
@@ -155,6 +161,60 @@ void Board::make_move(const Move &move) {
         }
         default: ;
     }
+}
+
+void Board::set_to_previous_state() {
+    BoardState state = m_state_stack.top();
+    m_castling_rights = state.castling_rights;
+    m_en_passant_target = state.en_passant_target;
+    m_state_stack.pop();
+}
+
+void Board::unmake_move(const Move &move) {
+    switch (move.type) {
+        case MoveType::NORMAL: {
+            set_piece(move.to.row, move.to.col, Piece{PieceType::NONE, PieceColor::NONE});
+            set_piece(move.from.row, move.from.col, move.moved_piece);
+            break;
+        }
+        case MoveType::CASTLE: {
+            auto king = move.moved_piece;
+            set_piece(move.from.row, move.from.col, king);
+            set_piece(move.to.row, move.to.col, Piece{PieceType::NONE, PieceColor::NONE});
+
+            bool is_kingside = (move.to.col > move.from.col);
+            Position rook_from = is_kingside
+                                     ? Position{move.from.row, 7}
+                                     : Position{move.from.row, 0};
+            Position rook_to = is_kingside
+                                   ? Position{move.from.row, move.to.col - 1}
+                                   : Position{move.from.row, move.to.col + 1};
+
+            auto rook = get_piece(rook_to.row, rook_to.col);
+            set_piece(rook_from.row, rook_from.col, rook);
+            set_piece(rook_to.row, rook_to.col, Piece{PieceType::NONE, PieceColor::NONE});
+            break;
+        }
+        case MoveType::EN_PASSANT: {
+            set_piece(move.from.row, move.from.col, move.moved_piece);
+            set_piece(move.to.row, move.to.col, Piece{PieceType::NONE, PieceColor::NONE});
+            set_piece(move.capture_at.row, move.capture_at.col, move.captured_piece);
+            break;
+        }
+        case MoveType::PROMOTION: {
+            set_piece(move.from.row, move.from.col, move.moved_piece);
+            set_piece(move.to.row, move.to.col, move.captured_piece);
+            break;
+        }
+        case MoveType::CAPTURE: {
+            set_piece(move.from.row, move.from.col, move.moved_piece);
+            set_piece(move.to.row, move.to.col, move.captured_piece);
+            break;
+        }
+        default: ;
+    }
+
+    set_to_previous_state();
 }
 
 Piece piece_from_FEN_char(char c) {
@@ -228,6 +288,19 @@ bool Board::has_castling_rights_queen_side(const PieceColor &color) const {
 
 bool Board::has_castling_rights_king_side(const PieceColor &color) const {
     return color == PieceColor::WHITE ? m_castling_rights.white_king_side : m_castling_rights.black_king_side;
+}
+
+Position Board::get_king_position(PieceColor piece_color) const {
+    for (int row = 0; row < BOARD_SIZE; row++) {
+        for (int col = 0; col < BOARD_SIZE; col++) {
+            Piece piece = get_piece(row, col);
+            if (piece.type == PieceType::KING && piece.color == piece_color) {
+                return Position{row, col};
+            }
+        }
+    }
+
+    return Position{-1, -1};
 }
 
 bool Board::is_in_bounds(int row, int col) {

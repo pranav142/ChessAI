@@ -34,9 +34,19 @@ public:
 
     std::vector<Move> get_moves(const Piece& piece, int row, int col);
 
+    std::vector<Move> get_all_legal_moves();
+
+    bool is_move_valid(const Piece &piece, int from_row, int from_col, int to_row, int to_col);
+
     [[nodiscard]] bool is_move_valid(const Piece &piece, int from_row, int from_col, int to_row, int to_col) const;
 
     void make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col, const Piece &promoted_piece);
+
+    void set_FEN(std::string fen);
+
+    void make_move(const Move& move);
+
+    void unmake_move(const Move &move);
 
     void make_computer_move(const PieceColor &color);
 

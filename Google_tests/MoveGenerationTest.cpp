@@ -6,26 +6,9 @@
 #include <Board.h>
 #include <gtest/gtest.h>
 
-TEST(GenerateMoves, HandlesCastleMoves) {
+TEST(GenerateMoves, HandlesCorrectNumberOfMoves) {
     Board board;
-    board.load_from_FEN("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1");
-}
-
-TEST(GenerateMoves, HandlesEnPassant) {
+    board.initialize();
 
 }
-
-TEST(GenerateMoves, HandlesPieceCapture) {
-
-}
-
-TEST(GenerateMoves, TestCheckMoves) {
-
-}
-
-TEST(GenerateMoves, HandlesPawmPromotion) {
-
-}
-
-
 

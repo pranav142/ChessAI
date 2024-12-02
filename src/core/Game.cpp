@@ -6,6 +6,7 @@
 #include "move_generation.h"
 #include "AI.h"
 #include "Board.h"
+#include "move_generation.h"
 #include <thread>
 
 Game::Game() {}
@@ -39,7 +40,23 @@ std::vector<Move> Game::get_moves(const Piece &piece, int row, int col) {
     return generate_moves(piece, m_board, Position{row, col});
 }
 
-bool Game::is_move_valid(const Piece &piece, int from_row, int from_col, int to_row, int to_col) const {
+std::vector<Move> Game::get_all_legal_moves() {
+    std::vector<Move> total_moves;
+
+    for (int row = 0; row < BOARD_SIZE; ++row) {
+        for (int col = 0; col < BOARD_SIZE; ++col) {
+            Piece piece = m_board.get_piece(row, col);
+            if (piece.color == m_current_player->color) {
+                auto moves = get_moves(piece, row, col);
+                total_moves.insert(total_moves.end(), moves.begin(), moves.end());
+            }
+        }
+    }
+
+    return total_moves;
+}
+
+bool Game::is_move_valid(const Piece &piece, int from_row, int from_col, int to_row, int to_col) {
     if (piece.color != m_current_player->color) {
         return false;
     }
@@ -70,6 +87,20 @@ void Game::make_move(const Piece &piece, int from_row, int from_col, int to_row,
     }
     print_move(selected_move);
     m_board.make_move(selected_move);
+    switch_turns();
+}
+
+void Game::set_FEN(std::string fen) {
+    m_board.load_from_FEN(fen);
+}
+
+void Game::make_move(const Move &move) {
+    m_board.make_move(move);
+    switch_turns();
+}
+
+void Game::unmake_move(const Move& move) {
+    m_board.unmake_move(move);
     switch_turns();
 }
 

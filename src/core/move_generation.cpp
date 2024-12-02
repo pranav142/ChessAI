@@ -4,6 +4,7 @@
 
 #include "move_generation.h"
 
+
 bool is_promotion_move(const Piece &piece, int to_row) {
     if (piece.type != PieceType::PAWN) {
         return false;
@@ -444,24 +445,44 @@ std::vector<Move> generate_attacking_moves(const Piece &piece, const Board &boar
 }
 
 // Generating Moves is SUS
-std::vector<Move> generate_moves(const Piece &piece, const Board &board, Position position) {
+std::vector<Move> generate_moves(const Piece &piece, Board &board, Position position) {
+    std::vector <Move> moves;
+
     switch (piece.type) {
         case PieceType::PAWN:
-            return generate_pawn_moves(board, position, piece);
+            moves = generate_pawn_moves(board, position, piece); break;
         case PieceType::BISHOP:
-            return generate_bishop_moves(board, position, piece);
+            moves = generate_bishop_moves(board, position, piece); break;
         case PieceType::ROOK:
-            return generate_rook_moves(board, position, piece);
+            moves = generate_rook_moves(board, position, piece); break;
         case PieceType::KNIGHT:
-            return generate_knight_moves(board, position, piece);
+            moves = generate_knight_moves(board, position, piece); break;
         case PieceType::QUEEN:
-            return generate_queen_moves(board, position, piece);
+            moves = generate_queen_moves(board, position, piece); break;
         case PieceType::KING:
-            return generate_king_moves(board, position, piece);
+            moves = generate_king_moves(board, position, piece); break;
         default: ;
     }
 
-    return {};
+    std::vector <Move> legal_moves;
+    for (auto &move : moves) {
+        if (is_king_safe_after_move(board, move, piece.color)) {
+            legal_moves.push_back(move);
+        }
+    }
+
+    return legal_moves;
+}
+
+bool is_king_safe_after_move(Board& board, const Move& move, PieceColor piece_color) {
+    bool is_king_safe = true;
+    board.make_move(move);
+    Position king_posiiton = board.get_king_position(piece_color);
+    if (is_square_attacked_by_color(king_posiiton.row, king_posiiton.col, get_enemy_color(piece_color), board)) {
+        is_king_safe = false;
+    }
+    board.unmake_move(move);
+    return is_king_safe;
 }
 
 bool is_square_attacked_by_color(int row, int col, const PieceColor &color, const Board &board) {
