@@ -1,13 +1,9 @@
 #include <iostream>
 #include "Piece.h"
 #include "Board.h"
+#include "FEN.h"
 
-void reset_castling_rights(CastlingRights &rights) {
-    rights.black_king_side = true;
-    rights.white_king_side = true;
-    rights.white_queen_side = true;
-    rights.black_queen_side = true;
-}
+
 
 Board::Board() {
     initialize();
@@ -15,9 +11,12 @@ Board::Board() {
 
 void Board::initialize() {
     //load_from_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    load_from_FEN("r3k2r/1P6/8/8/8/8/8/R3K2R w KQkq - 0 1");
+    //load_from_FEN("r3k2r/1P6/8/8/8/8/8/R3K2R w KQkq - 0 1");
     // load_from_FEN("r3k2r/8/8/8/8/8/1p6/R3K2R w KQkq - 0 1");
-    reset_castling_rights(m_castling_rights);
+    FEN fen;
+    std::string fen_string = STARTING_FEN;
+    create_fen_from_string(fen_string, fen);
+    load_from_FEN(fen);
 }
 
 const Piece &Board::get_piece(int row, int col) const {
@@ -217,46 +216,12 @@ void Board::unmake_move(const Move &move) {
     set_to_previous_state();
 }
 
-Piece piece_from_FEN_char(char c) {
-    PieceColor color = isupper(c) ? PieceColor::WHITE : PieceColor::BLACK;
-    PieceType type = PieceType::NONE;
-    switch (toupper(c)) {
-        case 'P': {
-            type = PieceType::PAWN;
-            break;
-        }
-        case 'N': {
-            type = PieceType::KNIGHT;
-            break;
-        }
-        case 'K': {
-            type = PieceType::KING;
-            break;
-        }
-        case 'Q': {
-            type = PieceType::QUEEN;
-            break;
-        }
-        case 'B': {
-            type = PieceType::BISHOP;
-            break;
-        }
-        case 'R': {
-            type = PieceType::ROOK;
-            break;
-        }
-        default: ;
-    }
-
-    return Piece{type, color};
-}
-
 // TODO: Improve FEN handling
-void Board::load_from_FEN(const std::string &FEN) {
-    // Split the string by /
+void Board::load_from_FEN(const FEN& fen) {
+    std::string fen_string = fen.board_string;
     int current_row = 0;
     int current_col = 0;
-    for (auto it: FEN) {
+    for (auto it: fen_string) {
         if (it == '/') {
             current_row++;
             current_col = 0;
@@ -276,6 +241,9 @@ void Board::load_from_FEN(const std::string &FEN) {
             current_col += 1;
         }
     }
+
+    m_castling_rights = fen.castling_rights;
+    m_en_passant_target = fen.en_passant_target;
 }
 
 Position Board::get_en_passant_target() const {

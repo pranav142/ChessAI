@@ -22,6 +22,8 @@ set(CORE_FILES src/core/Piece.cpp
         src/core/move_generation.cpp
         src/core/perft.cpp
         src/core/perft.h
+        src/core/FEN.cpp
+        src/core/FEN.h
 )
 
 set(SOURCE_FILES src/main.cpp
@@ -30,6 +32,8 @@ set(SOURCE_FILES src/main.cpp
         src/Renderer.cpp
         src/InputManager.cpp
         src/InputManager.h
+        src/core/castling_rights.cpp
+        src/core/castling_rights.h
 )
 
 add_executable(chess ${SOURCE_FILES} ${CORE_FILES})
@@ -44,8 +48,8 @@ add_executable(
         GTests_run
         Google_tests/BoardTests.cpp
         ${CORE_FILES}
-        Google_tests/MoveGenerationTest.cpp
         Google_tests/PerftTest.cpp
+        Google_tests/FenTest.cpp
 )
 
 target_include_directories(GTests_run PRIVATE src/core)

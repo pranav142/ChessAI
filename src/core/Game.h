@@ -42,7 +42,7 @@ public:
 
     void make_move(const Piece &piece, int from_row, int from_col, int to_row, int to_col, const Piece &promoted_piece);
 
-    void set_FEN(std::string fen);
+    void set_FEN(const std::string &fen);
 
     bool is_checkmate();
 

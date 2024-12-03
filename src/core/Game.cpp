@@ -3,11 +3,15 @@
 //
 
 #include "Game.h"
+
+#include <iostream>
+
 #include "move_generation.h"
 #include "AI.h"
 #include "Board.h"
 #include "move_generation.h"
 #include <thread>
+#include "FEN.h"
 
 Game::Game() {
 }
@@ -93,7 +97,13 @@ void Game::make_move(const Piece &piece, int from_row, int from_col, int to_row,
     switch_turns();
 }
 
-void Game::set_FEN(std::string fen) {
+void Game::set_FEN(const std::string &fen_string) {
+    FEN fen;
+    if (!create_fen_from_string(fen_string, fen)) {
+        std::clog << "error loading fen from string";
+        return;
+    }
+    m_current_player = fen.side_to_move == PieceColor::BLACK ? &m_black_player : &m_white_player;
     m_board.load_from_FEN(fen);
 }
 

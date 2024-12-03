@@ -10,20 +10,13 @@
 
 #include <stack>
 
-// Simply stores right to castle not the ability to castle
-struct CastlingRights {
-    bool white_king_side;
-    bool white_queen_side;
-    bool black_king_side;
-    bool black_queen_side;
-};
+#include "castling_rights.h"
+#include "FEN.h"
 
 struct BoardState {
     CastlingRights castling_rights;
     Position en_passant_target;
 };
-
-void reset_castling_rights(CastlingRights &rights);
 
 class Board {
 public:
@@ -47,7 +40,7 @@ public:
 
     void unmake_move(const Move &move);
 
-    void load_from_FEN(const std::string &FEN);
+    void load_from_FEN(const FEN &fen);
 
     [[nodiscard]] Position get_en_passant_target() const;
 

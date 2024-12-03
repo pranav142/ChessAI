@@ -155,6 +155,7 @@ Event UI::get_user_input() {
 void UI::run() {
     m_running = true;
 
+    m_game.set_FEN("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
     while (m_running) {
         m_window.clear();
         Event event = get_user_input();

@@ -34,7 +34,9 @@ TEST(BoardLoadFromFenTest, HandlesValidFen) {
 
     // Example FEN for a standard starting position
     std::string example_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    board.load_from_FEN(example_fen);
+    FEN fen;
+    create_fen_from_string(example_fen, fen);
+    board.load_from_FEN(fen);
 
     auto piece = board.get_piece(0, 0);
     EXPECT_EQ(piece.type, PieceType::ROOK) << "Square (0, 0) should be a black rook";
